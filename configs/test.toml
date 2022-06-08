@@ -1,0 +1,11 @@
+Version = "0.0.1"
+
+[Bot]
+Timeout = 60 # sec
+
+[Database]
+DriverName = "postgres"
+Addr = "localhost"
+Username = "paimon"
+Password = "paimon"
+Database = "paimoncookies"
