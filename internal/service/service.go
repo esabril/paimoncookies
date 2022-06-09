@@ -12,6 +12,7 @@ import (
 type Config struct {
 	Version string
 	Bot     struct {
+		Debug   bool
 		Timeout int
 	}
 	Database struct {
