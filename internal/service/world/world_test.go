@@ -13,7 +13,7 @@ func TestWorld_CreateAgendaSuccess(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	m := repo.NewMockIRepo(ctrl)
+	m := repo.NewMockIWorldRepo(ctrl)
 
 	t.Log("Test for everyday except Sunday")
 
@@ -27,8 +27,15 @@ func TestWorld_CreateAgendaSuccess(t *testing.T) {
 	result, err := service.CreateAgenda(today)
 
 	assert.NoError(t, err)
-	assert.Equal(t, "Понедельник", result.Weekday)
-	assert.Equal(t, result.Content.TalentBooks, map[string][]string{"Мондштадт": {"О Свободе"}})
+	assert.Equal(t, "понедельник", result.Weekday)
+	assert.Equal(t, result.Content.TalentBooks, map[string][]model.TalentBook{
+		"Мондштадт": {
+			{
+				Title:    "О Свободе",
+				Location: "Мондштадт",
+			},
+		},
+	})
 	assert.Equal(
 		t,
 		result.Content.WeaponMaterials,
@@ -49,8 +56,8 @@ func TestWorld_CreateAgendaSuccess(t *testing.T) {
 	result, err = service.CreateAgenda(today)
 
 	assert.NoError(t, err)
-	assert.Equal(t, "Воскресенье", result.Weekday)
-	assert.Equal(t, result.Content.TalentBooks, map[string][]string(nil))
+	assert.Equal(t, "воскресенье", result.Weekday)
+	assert.Equal(t, result.Content.TalentBooks, map[string][]model.TalentBook(nil))
 	assert.Equal(t, result.Content.WeaponMaterials, map[string][]model.WeaponMaterial(nil))
 	assert.True(t, result.SystemData.IsSunday)
 
@@ -61,7 +68,7 @@ func TestWorld_CreateAgendaFailed(t *testing.T) {
 	defer ctrl.Finish()
 
 	today := "monday"
-	m := repo.NewMockIRepo(ctrl)
+	m := repo.NewMockIWorldRepo(ctrl)
 
 	m.
 		EXPECT().
@@ -80,7 +87,7 @@ func TestWorld_CreateAgendaFailed(t *testing.T) {
 	assert.Nil(t, result)
 }
 
-func configureAgendaSuccessMock(m *repo.MockIRepo, today string) {
+func configureAgendaSuccessMock(m *repo.MockIWorldRepo, today string) {
 	m.
 		EXPECT().
 		GetWeekdayTalentBooksWithLocation(today).
@@ -113,4 +120,6 @@ func configureAgendaSuccessMock(m *repo.MockIRepo, today string) {
 				},
 			}, nil
 		}).MaxTimes(1).MinTimes(0)
+
+	m.EXPECT().GetRegions().DoAndReturn(func() ([]model.Region, error) { return nil, nil }).AnyTimes()
 }

@@ -46,7 +46,7 @@ func main() {
 	u.Timeout = c.Bot.Timeout
 
 	updates := bot.GetUpdatesChan(u)
-	comm := commander.New(bot, s)
+	comm := commander.New(bot, s, "internal/commander/template/")
 
 	for update := range updates {
 		comm.HandleCommands(update)

@@ -5,8 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"strings"
-	"time"
 )
 
 // Health Application healthcheck
@@ -18,8 +16,7 @@ func Health(c *gin.Context, _ *service.Service) {
 
 // GetAgenda Agenda: schedule of day's resources and other game statuses
 func GetAgenda(c *gin.Context, s *service.Service) {
-	today := strings.ToLower(time.Now().Weekday().String())
-	world, err := s.World.CreateAgenda(today)
+	world, err := s.World.CreateAgenda(s.TodayWeekday)
 
 	if err != nil {
 		log.Printf("Error occurred while getting Agenda")

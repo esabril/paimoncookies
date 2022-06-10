@@ -10,7 +10,7 @@ import (
 
 // World structure for resources
 type World struct {
-	repo repository.IRepo
+	repo repository.IWorldRepo
 }
 
 // NewService creates new world service
@@ -20,9 +20,16 @@ func NewService(db *sqlx.DB) *World {
 	}
 }
 
+// NewMock Service with configured mock repository
+func NewMock(mockRepo repository.IWorldRepo) *World {
+	return &World{
+		repo: mockRepo,
+	}
+}
+
 // CreateAgenda with day's resources
 func (w *World) CreateAgenda(weekday string) (*model.Agenda, error) {
-	var books map[string][]string
+	var books map[string][]model.TalentBook
 	var materials map[string][]model.WeaponMaterial
 	var err error
 
@@ -43,6 +50,13 @@ func (w *World) CreateAgenda(weekday string) (*model.Agenda, error) {
 		isSunday = true
 	}
 
+	regions, err := w.repo.GetRegions()
+	if err != nil {
+		log.Printf("Unable to get Regions list: %s\n", err.Error())
+
+		return nil, err
+	}
+
 	return &model.Agenda{
 		Weekday: model.RussianWeekdays[weekday],
 		Content: model.WorldContent{
@@ -51,11 +65,12 @@ func (w *World) CreateAgenda(weekday string) (*model.Agenda, error) {
 		},
 		SystemData: model.AgendaSystemData{
 			IsSunday: isSunday,
+			Regions:  regions,
 		},
 	}, nil
 }
 
-func (w *World) GetAgendaTalentBooks(weekday string) (map[string][]string, error) {
+func (w *World) GetAgendaTalentBooks(weekday string) (map[string][]model.TalentBook, error) {
 	booksList, err := w.repo.GetWeekdayTalentBooksWithLocation(weekday)
 	if err != nil {
 		log.Printf("Unable to get weekday's Talent Books list: %s\n", err.Error())
@@ -63,14 +78,14 @@ func (w *World) GetAgendaTalentBooks(weekday string) (map[string][]string, error
 		return nil, errors.Wrap(err, "Unable to get weekday's Talent Books list")
 	}
 
-	books := make(map[string][]string)
+	books := make(map[string][]model.TalentBook)
 
 	for _, b := range booksList {
 		if _, ok := books[b.Location]; !ok {
-			books[b.Location] = make([]string, 0)
+			books[b.Location] = make([]model.TalentBook, 0)
 		}
 
-		books[b.Location] = append(books[b.Location], b.Title)
+		books[b.Location] = append(books[b.Location], b)
 	}
 
 	return books, nil
