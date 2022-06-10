@@ -12,7 +12,8 @@ import (
 	"testing"
 )
 
-func TestCommander_GetAgendaSuccessful(t *testing.T) {
+// TestCommander_GetAgendaSixDaysSuccessful Getting Agenda for all weekdays except Sunday
+func TestCommander_GetAgendaSixDaysSuccessful(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -29,8 +30,8 @@ func TestCommander_GetAgendaSuccessful(t *testing.T) {
 		"template/",
 	)
 
-	expected := `Привет, Путешественник! 🌸
-Сегодня *понедельник* и сегодня в Тейвате тебя ждут:
+	expected := `🔔 Что, Путешественник, готов к приключениям?
+Сегодня 🗓 *понедельник* и сегодня в Тейвате тебя ждут:
 
 📚 *Книги на таланты*:
 Мондштадт: «О Свободе»
@@ -39,6 +40,38 @@ func TestCommander_GetAgendaSuccessful(t *testing.T) {
 🗡 *Материалы для улучшения оружия:*
 Мондштадт: «Плитки Декарабиана» (плиточки)
 Ли Юэ: «Столбы Гуюнь»
+
+Запасись смолой и вперед! А Паймон всегда будет с тобой! 💫`
+
+	assert.Equal(t, expected, commander.GetAgenda())
+}
+
+// TestCommander_GetAgendaSundaySuccessful Getting Agenda for Sunday
+func TestCommander_GetAgendaSundaySuccessful(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	m := repo.NewMockIWorldRepo(ctrl)
+	configureWorldMockRepo(m)
+
+	s := service.Service{
+		TodayWeekday: "sunday",
+		World:        world.NewMock(m),
+	}
+	commander := New(
+		&tgbotapi.BotAPI{},
+		&s,
+		"template/",
+	)
+
+	expected := `🔔 Что, Путешественник, готов к приключениям?
+Сегодня 🗓 *воскресенье* и сегодня в Тейвате тебя ждут:
+
+📚 *Книги на таланты*:
+Все возможные книги во всех открытых тобой Подземельях! Ох и сложный у тебя сегодня выбор! Но Паймон здесь, чтобы помочь!
+
+🗡 *Материалы для улучшения оружия:*
+Сегодня мы можем получить все возможные материалы! Давай выбирать вместе, куда мы сегодня отправимся?
 
 Запасись смолой и вперед! А Паймон всегда будет с тобой! 💫`
 
@@ -99,7 +132,11 @@ func configureWorldMockRepo(m *repo.MockIWorldRepo) {
 	m.
 		EXPECT().
 		GetWeekdayTalentBooksWithLocation(gomock.Any()).
-		DoAndReturn(func(_ string) ([]model.TalentBook, error) {
+		DoAndReturn(func(w string) ([]model.TalentBook, error) {
+			if w == "sunday" {
+				return []model.TalentBook{}, nil
+			}
+
 			return []model.TalentBook{
 				{
 					Title:    "О Свободе",
@@ -115,7 +152,11 @@ func configureWorldMockRepo(m *repo.MockIWorldRepo) {
 	m.
 		EXPECT().
 		GetWeekdayWeaponMaterialsWithLocation(gomock.Any()).
-		DoAndReturn(func(_ string) ([]model.WeaponMaterial, error) {
+		DoAndReturn(func(w string) ([]model.WeaponMaterial, error) {
+			if w == "sunday" {
+				return []model.WeaponMaterial{}, nil
+			}
+
 			return []model.WeaponMaterial{
 				{
 					Title:    "Плитки Декарабиана",
