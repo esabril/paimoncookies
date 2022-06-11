@@ -9,21 +9,22 @@ type Agenda struct {
 
 // WorldContent with world resources
 type WorldContent struct {
-	TalentBooks     map[string][]string         `json:"talent_books"`
+	TalentBooks     map[string][]TalentBook     `json:"talent_books"`
 	WeaponMaterials map[string][]WeaponMaterial `json:"weapon_materials"`
 }
 
 type AgendaSystemData struct {
-	IsSunday bool `json:"is_sunday"`
+	IsSunday bool     `json:"is_sunday"`
+	Regions  []Region `json:"regoins"`
 }
 
 // RussianWeekdays Russian translation for weekdays
 var RussianWeekdays = map[string]string{
-	"monday":    "Понедельник",
-	"tuesday":   "Вторник",
-	"wednesday": "Среда",
-	"thursday":  "Четверг",
-	"friday":    "Пятница",
-	"saturday":  "Суббота",
-	"sunday":    "Воскресенье",
+	"monday":    "понедельник",
+	"tuesday":   "вторник",
+	"wednesday": "среда",
+	"thursday":  "четверг",
+	"friday":    "пятница",
+	"saturday":  "суббота",
+	"sunday":    "воскресенье",
 }

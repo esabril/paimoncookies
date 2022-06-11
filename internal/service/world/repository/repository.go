@@ -5,10 +5,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// IRepo common repo interface
-type IRepo interface {
+// IWorldRepo common repo interface
+type IWorldRepo interface {
 	GetWeekdayTalentBooksWithLocation(weekday string) ([]model.TalentBook, error)
 	GetWeekdayWeaponMaterialsWithLocation(weekday string) ([]model.WeaponMaterial, error)
+	GetRegions() ([]model.Region, error)
 }
 
 // Repository
@@ -17,7 +18,7 @@ type repo struct {
 }
 
 // New initialize new repository
-func New(db *sqlx.DB) IRepo {
+func New(db *sqlx.DB) IWorldRepo {
 	return &repo{
 		db: db,
 	}
@@ -86,4 +87,17 @@ func (r *repo) GetWeekdayWeaponMaterialsWithLocation(weekday string) ([]model.We
 	}
 
 	return materials, nil
+}
+
+// GetRegions in strict order
+func (r *repo) GetRegions() ([]model.Region, error) {
+	var regions []model.Region
+	query := "SELECT id, name, title FROM region ORDER BY id"
+
+	err := r.db.Select(&regions, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return regions, nil
 }
