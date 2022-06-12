@@ -1,36 +1,37 @@
 package main
 
 import (
-	"github.com/BurntSushi/toml"
 	"github.com/esabril/paimoncookies/internal/commander"
 	"github.com/esabril/paimoncookies/internal/server"
 	"github.com/esabril/paimoncookies/internal/service"
 	"github.com/esabril/paimoncookies/internal/telegram_bot"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/joho/godotenv"
 	"log"
+	"os"
 )
 
 func main() {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Println("Panic")
+			log.Println("Panic with error:", r)
 		}
 	}()
 
-	var c *service.Config
-
-	_, err := toml.DecodeFile("configs/test.toml", &c)
+	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Unable to read config file: %s\n", err.Error())
+		log.Fatalf("Error loading .env file: %s", err.Error())
 	}
 
-	log.Printf("\n\nWelcome to Paimon Cookies Application. Current version: %s\n\n", c.Version)
+	c := service.ParseConfigFromEnv()
+
+	log.Printf("\n\nWelcome to Paimon Cookies Application. Current version: %s\n\n", os.Getenv("APP_VERSION"))
 
 	s := service.NewService(c)
 
 	apiCh := make(chan string, 1)
 	// maybe should change to Cobra if CLI-format will more useful
-	apiEndpoint := server.GetRouter(s)
+	apiEndpoint := server.GetRouter(s, c)
 
 	go func() {
 		apiCh <- "Running API endpoint server"

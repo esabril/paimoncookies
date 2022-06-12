@@ -12,15 +12,10 @@ RUN go mod download -x && go mod verify
 
 COPY . .
 
-RUN if [ ! -d "vendor" ]; then go mod vendor -v; fi
-
-RUN go version
-
+RUN go mod vendor -v;
 RUN go build -v -mod=vendor -o /usr/local/bin/paimoncookies ./cmd/paimoncookies
 
-ENV CONFIG_FILE=/config/test.toml
-
-ENTRYPOINT /usr/local/bin/paimoncookies --config=/config/${CONFIG_FILE}
+ENTRYPOINT /usr/local/bin/paimoncookies
 
 EXPOSE 8087
 
