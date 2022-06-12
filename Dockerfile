@@ -15,9 +15,9 @@ COPY . .
 RUN go mod vendor -v;
 RUN go build -v -mod=vendor -o /usr/local/bin/paimoncookies ./cmd/paimoncookies
 
-ENTRYPOINT /usr/local/bin/paimoncookies
-
 EXPOSE 8087
+
+CMD ["/usr/local/bin/paimoncookies"]
 
 LABEL version=0.0.1 \
       maintainer="Anna Vassilenko <esabril.ch@gmail.com>" \

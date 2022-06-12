@@ -21,6 +21,7 @@ type DbConfig struct {
 	Username   string
 	Password   string
 	Database   string
+	SslMode    string
 }
 
 type ApiConfig struct {
@@ -32,15 +33,8 @@ type ApiConfig struct {
 type Config struct {
 	Version  string
 	Bot      BotConfig
-	Database struct {
-		DriverName string
-		Host       string
-		Port       int
-		Username   string
-		Password   string
-		Database   string
-	}
-	Api ApiConfig
+	Database DbConfig
+	Api      ApiConfig
 }
 
 func ParseConfigFromEnv() *Config {
@@ -60,6 +54,7 @@ func ParseConfigFromEnv() *Config {
 		Username:   os.Getenv("DB_USER"),
 		Password:   os.Getenv("DB_PASS"),
 		Database:   os.Getenv("DB_NAME"),
+		SslMode:    os.Getenv("DB_SSL_MODE"),
 	}
 
 	if os.Getenv("BOT_TOKEN") == "" {

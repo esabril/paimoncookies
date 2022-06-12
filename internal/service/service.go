@@ -21,12 +21,13 @@ func NewService(c *Config) *Service {
 	db, err := sqlx.Open(
 		c.Database.DriverName,
 		fmt.Sprintf(
-			"host=%s port=%d user=%s password=%s database=%s sslmode=disable",
+			"host=%s port=%d user=%s password=%s database=%s sslmode=%s",
 			c.Database.Host,
 			c.Database.Port,
 			c.Database.Username,
 			c.Database.Password,
 			c.Database.Database,
+			c.Database.SslMode,
 		),
 	)
 
