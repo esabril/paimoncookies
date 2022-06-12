@@ -36,7 +36,7 @@ func main() {
 	go func() {
 		apiCh <- "Running API endpoint server"
 
-		apiEndpoint.Run("127.0.0.1:8087")
+		apiEndpoint.Run("0.0.0.0:8087")
 	}()
 
 	log.Println(<-apiCh)
