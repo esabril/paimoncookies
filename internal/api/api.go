@@ -19,7 +19,7 @@ func GetAgenda(c *gin.Context, s *service.Service) {
 	world, err := s.World.CreateAgenda(s.TodayWeekday)
 
 	if err != nil {
-		log.Printf("Error occurred while getting Agenda")
+		log.Printf("Error occurred while getting Agenda: %s\n", err.Error())
 
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Ошибка получения расписания для сегодняшнего дня",

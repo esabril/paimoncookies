@@ -10,23 +10,6 @@ import (
 	"time"
 )
 
-// Config Application config
-type Config struct {
-	Version string
-	Bot     struct {
-		Debug        bool
-		Timeout      int
-		TemplatePath string
-	}
-	Database struct {
-		DriverName string
-		Addr       string
-		Username   string
-		Password   string
-		Database   string
-	}
-}
-
 // Service common application service
 type Service struct {
 	TodayWeekday string
@@ -38,7 +21,9 @@ func NewService(c *Config) *Service {
 	db, err := sqlx.Open(
 		c.Database.DriverName,
 		fmt.Sprintf(
-			"user=%s password=%s database=%s sslmode=disable",
+			"host=%s port=%d user=%s password=%s database=%s sslmode=disable",
+			c.Database.Host,
+			c.Database.Port,
 			c.Database.Username,
 			c.Database.Password,
 			c.Database.Database,
