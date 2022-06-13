@@ -1,101 +1,56 @@
 package service
 
 import (
-	"fmt"
+	"context"
+	"github.com/joho/godotenv"
+	"github.com/sethvargo/go-envconfig"
 	"log"
-	"os"
-	"strconv"
 )
 
 type BotConfig struct {
-	Token        string
-	Debug        bool
-	Timeout      int
-	TemplatePath string
+	Token        string `env:"BOT_TOKEN,required"`
+	Debug        bool   `env:"BOT_DEBUG"`
+	Timeout      int    `env:"BOT_TIMEOUT,default=60"`
+	TemplatePath string `env:"BOT_TEMPLATE_PATH,required"`
 }
 
 type DbConfig struct {
-	DriverName string
-	Host       string
-	Port       int
-	Username   string
-	Password   string
-	Database   string
-	SslMode    string
+	DriverName string `env:"DB_DRIVER,required"`
+	Host       string `env:"DB_HOST,required"`
+	Port       int    `env:"DB_PORT,required"`
+	Username   string `env:"DB_USER,required"`
+	Password   string `env:"DB_PASS,required"`
+	Database   string `env:"DB_NAME,required"`
+	SslMode    string `env:"DB_SSL_MODE,required"`
 }
 
 type ApiConfig struct {
-	Debug  bool
-	AppKey string
+	Debug  bool   `env:"API_DEBUG"`
+	AppKey string `env:"API_APPKEY,required"`
+	Port   string `env:"API_PORT,required"`
 }
 
 // Config Application config
 type Config struct {
-	Version  string
-	Timezone string
+	Version  string `env:"APP_VERSION,required"`
+	Timezone string `env:"TIMEZONE,default=Asia/Almaty"`
 	Bot      BotConfig
 	Database DbConfig
 	Api      ApiConfig
 }
 
-func ParseConfigFromEnv() *Config {
+func ParseConfigFromEnv(ctx context.Context) *Config {
 	c := &Config{}
 
-	c.Version = os.Getenv("APP_VERSION")
-	c.Timezone = os.Getenv("TIMEZONE")
-
-	dbPort, err := strconv.Atoi(os.Getenv("DB_PORT"))
+	// For convenience, you can use the .env file in the root directory of the project
+	err := godotenv.Load()
 	if err != nil {
-		log.Fatalln("Unable to parse DB port from .env:", err.Error())
+		log.Printf("%s. Will use config from environment\n", err.Error())
 	}
 
-	c.Database = DbConfig{
-		DriverName: os.Getenv("DB_DRIVER"),
-		Host:       os.Getenv("DB_HOST"),
-		Port:       dbPort,
-		Username:   os.Getenv("DB_USER"),
-		Password:   os.Getenv("DB_PASS"),
-		Database:   os.Getenv("DB_NAME"),
-		SslMode:    os.Getenv("DB_SSL_MODE"),
-	}
-
-	if os.Getenv("BOT_TOKEN") == "" {
-		log.Panic("BOT_TOKEN is not set")
-	}
-
-	c.Bot = BotConfig{
-		Token:        os.Getenv("BOT_TOKEN"),
-		Debug:        parseBool("BOT_DEBUG", true),
-		Timeout:      parseInt("BOT_TIMEOUT", 60),
-		TemplatePath: os.Getenv("BOT_TEMPLATE_PATH"),
-	}
-
-	c.Api = ApiConfig{
-		Debug:  parseBool("API_DEBUG", true),
-		AppKey: os.Getenv("API_APPKEY"),
+	if err := envconfig.Process(ctx, c); err != nil {
+		log.Fatal(err)
 	}
 
 	return c
-}
-
-func parseBool(key string, defaultValue bool) bool {
-	v, err := strconv.ParseBool(os.Getenv(key))
-	if err != nil {
-		fmt.Printf("Unable to parse %s from .env: %s\n", key, err.Error())
-
-		v = defaultValue
-	}
-
-	return v
-}
-
-func parseInt(key string, defaultValue int) int {
-	v, err := strconv.Atoi(os.Getenv(key))
-	if err != nil {
-		log.Printf("Unable to parse %s from .env: %s\n", key, err.Error())
-
-		v = defaultValue
-	}
-
-	return v
 }

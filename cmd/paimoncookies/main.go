@@ -1,12 +1,13 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"github.com/esabril/paimoncookies/internal/commander"
 	"github.com/esabril/paimoncookies/internal/server"
 	"github.com/esabril/paimoncookies/internal/service"
 	"github.com/esabril/paimoncookies/internal/telegram_bot"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 )
@@ -18,12 +19,8 @@ func main() {
 		}
 	}()
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file: %s", err.Error())
-	}
-
-	c := service.ParseConfigFromEnv()
+	ctx := context.Background()
+	c := service.ParseConfigFromEnv(ctx)
 
 	log.Printf("\n\nWelcome to Paimon Cookies Application. Current version: %s\n\n", os.Getenv("APP_VERSION"))
 
@@ -36,7 +33,7 @@ func main() {
 	go func() {
 		apiCh <- "Running API endpoint server"
 
-		apiEndpoint.Run("0.0.0.0:8087")
+		apiEndpoint.Run(fmt.Sprintf("0.0.0.0:%s", c.Api.Port))
 	}()
 
 	log.Println(<-apiCh)
