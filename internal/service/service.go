@@ -35,8 +35,15 @@ func NewService(c *Config) *Service {
 		log.Fatalf("Unable to connect to database: %s\n", err.Error())
 	}
 
+	location, err := time.LoadLocation(c.Timezone)
+	if err != nil {
+		log.Printf("Error while loading timezone: %s\n", err.Error())
+	}
+
+	now := time.Now()
+
 	return &Service{
-		TodayWeekday: strings.ToLower(time.Now().Weekday().String()),
+		TodayWeekday: strings.ToLower(now.In(location).Weekday().String()),
 		World:        world.NewService(db),
 	}
 }

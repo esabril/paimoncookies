@@ -32,6 +32,7 @@ type ApiConfig struct {
 // Config Application config
 type Config struct {
 	Version  string
+	Timezone string
 	Bot      BotConfig
 	Database DbConfig
 	Api      ApiConfig
@@ -41,6 +42,7 @@ func ParseConfigFromEnv() *Config {
 	c := &Config{}
 
 	c.Version = os.Getenv("APP_VERSION")
+	c.Timezone = os.Getenv("TIMEZONE")
 
 	dbPort, err := strconv.Atoi(os.Getenv("DB_PORT"))
 	if err != nil {
