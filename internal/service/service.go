@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/esabril/paimoncookies/internal/service/characters"
 	"github.com/esabril/paimoncookies/internal/service/world"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -14,6 +15,7 @@ import (
 type Service struct {
 	TodayWeekday string
 	World        *world.World
+	Characters   *characters.Characters
 }
 
 // NewService creates new service
@@ -45,5 +47,6 @@ func NewService(c *Config) *Service {
 	return &Service{
 		TodayWeekday: strings.ToLower(now.In(location).Weekday().String()),
 		World:        world.NewService(db),
+		Characters:   characters.NewService(db),
 	}
 }

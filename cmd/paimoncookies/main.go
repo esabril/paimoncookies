@@ -9,7 +9,6 @@ import (
 	"github.com/esabril/paimoncookies/internal/telegram_bot"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
-	"os"
 )
 
 func main() {
@@ -22,7 +21,7 @@ func main() {
 	ctx := context.Background()
 	c := service.ParseConfigFromEnv(ctx)
 
-	log.Printf("\n\nWelcome to Paimon Cookies Application. Current version: %s\n\n", os.Getenv("APP_VERSION"))
+	log.Printf("\n\nWelcome to Paimon Cookies Application. Current version: %s\n\n", c.Version)
 
 	s := service.NewService(c)
 
