@@ -51,6 +51,7 @@ func configRoutes(r *gin.Engine, s *service.Service, c *service.Config) {
 // Auxiliary function for setting additional arguments to API handlers
 func handle(f func(c *gin.Context, s *service.Service), s *service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		s.SetTodayWeekday()
 		f(c, s)
 	}
 }

@@ -40,6 +40,8 @@ func (c *Commander) HandleCommands(update tgbotapi.Update) {
 
 	msg.ReplyMarkup = replyKeyboard
 
+	c.service.SetTodayWeekday()
+
 	if update.Message.IsCommand() {
 		switch update.Message.Command() {
 		case CommandStart:
