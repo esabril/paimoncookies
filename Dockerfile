@@ -19,7 +19,7 @@ EXPOSE 8087
 
 CMD ["/usr/local/bin/paimoncookies"]
 
-LABEL version=0.1.1 \
+LABEL version=0.1.2 \
       maintainer="Anna Vassilenko <esabril.ch@gmail.com>" \
       name="Paimon Cookies Bot" \
       description="Useful information about Genshin Impact game"

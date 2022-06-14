@@ -12,6 +12,7 @@ import (
 
 // Service common application service
 type Service struct {
+	Config       *Config
 	TodayWeekday string
 	World        *world.World
 }
@@ -35,15 +36,20 @@ func NewService(c *Config) *Service {
 		log.Fatalf("Unable to connect to database: %s\n", err.Error())
 	}
 
-	location, err := time.LoadLocation(c.Timezone)
+	return &Service{
+		Config: c,
+		World:  world.NewService(db),
+	}
+}
+
+// SetTodayWeekday refresh and set today weekday for requests
+func (s *Service) SetTodayWeekday() {
+	location, err := time.LoadLocation(s.Config.Timezone)
 	if err != nil {
 		log.Printf("Error while loading timezone: %s\n", err.Error())
 	}
 
 	now := time.Now()
 
-	return &Service{
-		TodayWeekday: strings.ToLower(now.In(location).Weekday().String()),
-		World:        world.NewService(db),
-	}
+	s.TodayWeekday = strings.ToLower(now.In(location).Weekday().String())
 }
