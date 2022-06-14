@@ -2,22 +2,51 @@ package renderer
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"log"
 	"strings"
+	"sync"
 )
 
 // CommonErrorMessage Little Trick: if user gives a message without any emoji — something wrong with renderer in common
 const CommonErrorMessage = "Ой, что-то пошло не так. Давай немного подождем, может позже восстановится?"
 
 type Renderer struct {
-	TemplatePath string
+	TemplatePath      string
+	emu               sync.RWMutex
+	ElementsToEmojis  map[string]string
+	PreviousPageEmoji string
+	NextPageEmoji     string
 }
 
 func NewRenderer(templatePath string) *Renderer {
 	return &Renderer{
 		TemplatePath: templatePath,
+		ElementsToEmojis: map[string]string{
+			"Крио":    "❄",
+			"Пиро":    "🔥",
+			"Анемо":   "🍃",
+			"Электро": "⚡",
+			"Гео":     "🔶",
+			"Гидро":   "💧",
+			"Дендро":  "🌱",
+		},
+		PreviousPageEmoji: "⬅",
+		NextPageEmoji:     "➡",
 	}
+}
+
+func (r *Renderer) AddEmojiToElement(el string) string {
+	r.emu.RLock()
+	emoji, ok := r.ElementsToEmojis[el]
+	r.emu.RUnlock()
+
+	if !ok {
+		return el
+	}
+
+	return fmt.Sprintf("%s %s", emoji, el)
 }
 
 func (r *Renderer) Render(name string, params interface{}) (string, error) {

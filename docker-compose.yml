@@ -6,8 +6,8 @@ services:
     volumes:
       - .:/code
     environment:
-      DB_HOST: postgres
-      BOT_TOKEN:
+      PCOOKIES_DB_HOST: postgres
+      PCOOKIES_BOT_TOKEN:
     depends_on:
       - postgres
   postgres:

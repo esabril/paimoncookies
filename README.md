@@ -3,7 +3,7 @@
 #### Version 0.1.2
 
 ## Run
-Run project and all required migrations
+Run project dev environment and all required migrations
 
 ```shell
 make BOT_TOKEN=<set your telegram bot token> start

@@ -1,4 +1,3 @@
 .idea/
 vendor/
-configs/prod.toml
 .env

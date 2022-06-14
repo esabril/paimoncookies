@@ -1,4 +1,4 @@
-package commander
+package commands
 
 import (
 	"errors"
@@ -6,11 +6,12 @@ import (
 	"github.com/esabril/paimoncookies/internal/service/world"
 	"github.com/esabril/paimoncookies/internal/service/world/model"
 	repo "github.com/esabril/paimoncookies/test/world/repository"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+var templatePath = "../template/"
 
 // TestCommander_GetAgendaSixDaysSuccessful Getting Agenda for all weekdays except Sunday
 func TestCommander_GetAgendaSixDaysSuccessful(t *testing.T) {
@@ -24,10 +25,10 @@ func TestCommander_GetAgendaSixDaysSuccessful(t *testing.T) {
 		TodayWeekday: "monday",
 		World:        world.NewMock(m),
 	}
-	commander := New(
-		&tgbotapi.BotAPI{},
+	c := NewCommander(
 		&s,
-		"template/",
+		templatePath,
+		nil,
 	)
 
 	expected := `🔔 Что, Путешественник, готов к приключениям?
@@ -43,7 +44,7 @@ func TestCommander_GetAgendaSixDaysSuccessful(t *testing.T) {
 
 Запасись смолой и вперед! А Паймон всегда будет с тобой! 💫`
 
-	assert.Equal(t, expected, commander.GetAgenda())
+	assert.Equal(t, expected, c.GetAgenda())
 }
 
 // TestCommander_GetAgendaSundaySuccessful Getting Agenda for Sunday
@@ -58,10 +59,10 @@ func TestCommander_GetAgendaSundaySuccessful(t *testing.T) {
 		TodayWeekday: "sunday",
 		World:        world.NewMock(m),
 	}
-	commander := New(
-		&tgbotapi.BotAPI{},
+	c := NewCommander(
 		&s,
-		"template/",
+		templatePath,
+		nil,
 	)
 
 	expected := `🔔 Что, Путешественник, готов к приключениям?
@@ -75,7 +76,7 @@ func TestCommander_GetAgendaSundaySuccessful(t *testing.T) {
 
 Запасись смолой и вперед! А Паймон всегда будет с тобой! 💫`
 
-	assert.Equal(t, expected, commander.GetAgenda())
+	assert.Equal(t, expected, c.GetAgenda())
 }
 
 func TestCommander_GetAgendaTemplateFail(t *testing.T) {
@@ -90,13 +91,13 @@ func TestCommander_GetAgendaTemplateFail(t *testing.T) {
 		World:        world.NewMock(m),
 	}
 
-	commander := New(
-		&tgbotapi.BotAPI{},
+	c := NewCommander(
 		&s,
 		"wrongTemplatePath/",
+		nil,
 	)
 
-	assert.Equal(t, "Ой, что-то пошло не так. Давай немного подождем, может позже восстановится?", commander.GetAgenda())
+	assert.Equal(t, "Ой, что-то пошло не так. Давай немного подождем, может позже восстановится?", c.GetAgenda())
 }
 
 func TestCommander_GetAgendaDataFail(t *testing.T) {
@@ -116,16 +117,16 @@ func TestCommander_GetAgendaDataFail(t *testing.T) {
 		TodayWeekday: "monday",
 		World:        world.NewMock(m),
 	}
-	commander := New(
-		&tgbotapi.BotAPI{},
+	c := NewCommander(
 		&s,
-		"template/",
+		templatePath,
+		nil,
 	)
 
 	expected := `🤔 Что? Ты спрашивала Паймон про «расписание дня»? Кажется, Паймон нечего тебе рассказать прямо сейчас.
 Позволь мне немного передохнуть и мы снова поговорим. 🤗`
 
-	assert.Equal(t, expected, commander.GetAgenda())
+	assert.Equal(t, expected, c.GetAgenda())
 }
 
 func configureWorldMockRepo(m *repo.MockIWorldRepo) {

@@ -4,12 +4,17 @@ import (
 	"github.com/esabril/paimoncookies/internal/service/characters/repository"
 	"github.com/jmoiron/sqlx"
 	"log"
+	"sync"
 )
 
 type Characters struct {
-	repo       repository.ICharactersRepo
+	repo repository.ICharactersRepo
+	// Elements Map mutex
+	emu        sync.RWMutex
 	elements   map[string][]string
 	characters map[string]bool
+	// Characters Map mutex
+	cmu sync.RWMutex
 }
 
 // Short characters names for searching
@@ -73,4 +78,55 @@ func (c *Characters) SimplifyCharacterName(name string) string {
 	}
 
 	return shortName
+}
+
+func (c *Characters) GetElements() map[string][]string {
+	c.emu.RLock()
+	defer c.emu.RUnlock()
+
+	return c.elements
+}
+
+// GetElementCharacters little experiment: trying to get immutable characters data from memory
+// without requests to DB
+// TODO: tests
+func (c *Characters) GetElementCharacters(element string, first, last int) []string {
+	c.emu.RLock()
+	defer c.emu.RUnlock()
+
+	if first == 0 && last == 0 {
+		return c.elements[element]
+	}
+
+	if first < 0 {
+		first = 0
+	}
+
+	count := len(c.elements[element])
+
+	if last > count {
+		last = count
+	}
+
+	return c.elements[element][first:last]
+}
+
+// TODO: tests with go routines
+func (c *Characters) CheckCharacter(name string) bool {
+	c.cmu.RLock()
+	defer c.cmu.RUnlock()
+
+	_, ok := c.characters[name]
+
+	return ok
+}
+
+// TODO: tests with go routines
+func (c *Characters) CheckElement(element string) bool {
+	c.emu.RLock()
+	defer c.emu.RUnlock()
+
+	_, ok := c.elements[element]
+
+	return ok
 }

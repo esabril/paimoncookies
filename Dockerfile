@@ -5,27 +5,27 @@ FROM ${build_image} as build_stage
 ENV GO111MODULE=on
 
 # Application env
-ENV APP_VERSION=0.1.1 \
-    TIMEZONE=Asia/Almaty \
+ENV PCOOKIES_APP_VERSION=0.2.0 \
+    PCOOKIES_PCOOKIES_TIMEZONE=Asia/Almaty \
 
     # Database
-    DB_DRIVER=postgres \
-    DB_HOST=localhost \
-    DB_PORT=5432 \
-    DB_USER=paimon \
-    DB_PASS=paimon \
-    DB_NAME=paimoncookies \
-    DB_SSL_MODE=disable \
+    PCOOKIES_DB_DRIVER=postgres \
+    PCOOKIES_DB_HOST=localhost \
+    PCOOKIES_DB_PORT=5432 \
+    PCOOKIES_DB_USER=paimon \
+    PCOOKIES_DB_PASS=paimon \
+    PCOOKIES_DB_NAME=paimoncookies \
+    PCOOKIES_DB_SSL_MODE=disable \
 
     # Bot
-    BOT_TIMEOUT=60 \
-    BOT_DEBUG=true \
-    BOT_TEMPLATE_PATH=internal/commander/template/ \
+    PCOOKIES_BOT_TIMEOUT=60 \
+    PCOOKIES_BOT_DEBUG=true \
+    PCOOKIES_BOT_TEMPLATE_PATH=internal/commander/template/ \
 
     # API
-    API_DEBUG=true \
-    API_APPKEY=test \
-    API_PORT=8087
+    PCOOKIES_API_DEBUG=true \
+    PCOOKIES_API_APPKEY=test \
+    PCOOKIES_API_PORT=8087
 
 WORKDIR /code
 
@@ -38,11 +38,11 @@ COPY . .
 RUN go mod vendor -v;
 RUN go build -v -mod=vendor -o /usr/local/bin/paimoncookies ./cmd/paimoncookies
 
-EXPOSE $API_PORT
+EXPOSE $PCOOKIES_API_PORT
 
 CMD ["/usr/local/bin/paimoncookies"]
 
-LABEL version=$APP_VERSION \
+LABEL version=$PCOOKIES_APP_VERSION \
       maintainer="Anna Vassilenko <esabril.ch@gmail.com>" \
       name="Paimon Cookies Bot" \
       description="Useful information about Genshin Impact game"

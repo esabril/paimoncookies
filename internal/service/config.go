@@ -7,6 +7,8 @@ import (
 	"log"
 )
 
+const EnvVariablesPrefix = "PCOOKIES_"
+
 type BotConfig struct {
 	Token        string `env:"BOT_TOKEN,required"`
 	Debug        bool   `env:"BOT_DEBUG"`
@@ -48,8 +50,9 @@ func ParseConfigFromEnv(ctx context.Context) *Config {
 		log.Printf("%s. Will use config from environment\n", err.Error())
 	}
 
-	if err := envconfig.Process(ctx, c); err != nil {
-		log.Fatal(err)
+	l := envconfig.PrefixLookuper(EnvVariablesPrefix, envconfig.OsLookuper())
+	if err := envconfig.ProcessWith(ctx, c, l); err != nil {
+		panic(err)
 	}
 
 	return c
