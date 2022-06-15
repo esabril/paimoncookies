@@ -69,6 +69,8 @@ func TestCharacters_GetInitialCharactersListFail(t *testing.T) {
 }
 
 func TestCharacters_SimplifyCharacterName(t *testing.T) {
+	t.Parallel()
+
 	s := Characters{}
 
 	var TestCases = []struct {
@@ -83,6 +85,108 @@ func TestCharacters_SimplifyCharacterName(t *testing.T) {
 	}
 
 	for _, tt := range TestCases {
-		assert.Equal(t, tt.Expected, s.SimplifyCharacterName(tt.Name))
+		t.Run(tt.Name, func(t *testing.T) {
+			assert.Equal(t, tt.Expected, s.SimplifyCharacterName(tt.Name))
+		})
 	}
+}
+
+func TestCharacters_GetElementCharacters(t *testing.T) {
+	t.Parallel()
+
+	c := Characters{elements: map[string][]string{
+		"Крио": {"Кэйя", "Эола", "Цици"},
+	}}
+
+	testCases := []struct {
+		Element  string
+		First    int
+		Last     int
+		Expected []string
+	}{
+		{"Крио", 0, 0, []string{"Кэйя", "Эола", "Цици"}},
+		{"Крио", 1, 5, []string{"Эола", "Цици"}},
+		{"Крио", 0, 5, []string{"Кэйя", "Эола", "Цици"}},
+		{"Крио", 1, 4, []string{"Эола", "Цици"}},
+		{"Крио", -1, 2, []string{"Кэйя", "Эола"}},
+		{"Крио", 1, 3, []string{"Эола", "Цици"}},
+		{"Пиро", 0, 1, []string{}},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.Element, func(t *testing.T) {
+			assert.Equal(t, tt.Expected, c.GetElementCharacters(tt.Element, tt.First, tt.Last))
+		})
+	}
+}
+
+func TestCharacters_CheckElement(t *testing.T) {
+	t.Parallel()
+
+	c := Characters{elements: map[string][]string{
+		"Крио":  {"Кэйя", "Эола", "Цици"},
+		"Пиро":  {"Дилюк", "Йоимия"},
+		"Гидро": {"Тарталья"},
+	}}
+
+	elements := []string{"Крио", "Пиро", "Дендро", "Крио", "Гидро", "Анемо"}
+
+	trueCount, falseCount := 0, 0
+	ch := make(chan bool)
+
+	for _, el := range elements {
+		go func(element string) {
+			ch <- c.CheckElement(element)
+		}(el)
+	}
+
+	for i := 0; i < len(elements); i++ {
+		if <-ch {
+			trueCount++
+		} else {
+			falseCount++
+		}
+	}
+
+	close(ch)
+
+	assert.Equal(t, 4, trueCount)
+	assert.Equal(t, 2, falseCount)
+}
+
+func TestCharacters_CheckCharacter(t *testing.T) {
+	c := Characters{
+		characters: map[string]bool{
+			"Кэйя":     true,
+			"Эола":     true,
+			"Цици":     true,
+			"Дилюк":    true,
+			"Йоимия":   true,
+			"Тарталья": true,
+		},
+	}
+
+	requests := []string{"Кэйя", "Эола", "Цици", "Сара", "Дилюк", "Аяка", "Йоимия", "Тарталья", "Лиза"}
+
+	trueCount, falseCount := 0, 0
+	ch := make(chan bool)
+
+	for _, name := range requests {
+		go func(name string) {
+			ch <- c.CheckCharacter(name)
+		}(name)
+	}
+
+	for i := 0; i < len(requests); i++ {
+		if <-ch {
+			trueCount++
+		} else {
+			falseCount++
+		}
+	}
+
+	close(ch)
+
+	assert.Equal(t, 6, trueCount)
+	assert.Equal(t, 3, falseCount)
 }

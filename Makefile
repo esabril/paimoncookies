@@ -71,6 +71,10 @@ run-local-tests: mock-generate
 run-app-tests: mock-generate
 	docker-compose -f $(DOCKER_COMPOSE_FILE) exec -it app sh && go test ./... -v
 
+.PHONY: run-test-coverage
+run-test-coverage:
+	go test ./... -coverprofile test/cover.out && go tool cover -html=test/cover.out
+
 .PHONY: stop
 stop:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) down

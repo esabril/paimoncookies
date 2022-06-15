@@ -4,17 +4,12 @@ import (
 	"github.com/esabril/paimoncookies/internal/service/characters/repository"
 	"github.com/jmoiron/sqlx"
 	"log"
-	"sync"
 )
 
 type Characters struct {
-	repo repository.ICharactersRepo
-	// Elements Map mutex
-	emu        sync.RWMutex
+	repo       repository.ICharactersRepo
 	elements   map[string][]string
 	characters map[string]bool
-	// Characters Map mutex
-	cmu sync.RWMutex
 }
 
 // Short characters names for searching
@@ -42,6 +37,13 @@ func NewService(db *sqlx.DB) *Characters {
 	s.characters = chars
 
 	return s
+}
+
+func NewMock(elements map[string][]string, characters map[string]bool) *Characters {
+	return &Characters{
+		elements:   elements,
+		characters: characters,
+	}
 }
 
 // GetInitialCharactersList perform structures with characters and elements
@@ -81,51 +83,43 @@ func (c *Characters) SimplifyCharacterName(name string) string {
 }
 
 func (c *Characters) GetElements() map[string][]string {
-	c.emu.RLock()
-	defer c.emu.RUnlock()
-
 	return c.elements
 }
 
 // GetElementCharacters little experiment: trying to get immutable characters data from memory
 // without requests to DB
-// TODO: tests
 func (c *Characters) GetElementCharacters(element string, first, last int) []string {
-	c.emu.RLock()
-	defer c.emu.RUnlock()
+	list, ok := c.elements[element]
+	if !ok {
+		log.Println("Attempt to get a list by an element that is not in the list:", element)
+
+		return []string{}
+	}
 
 	if first == 0 && last == 0 {
-		return c.elements[element]
+		return list
 	}
 
 	if first < 0 {
 		first = 0
 	}
 
-	count := len(c.elements[element])
+	count := len(list)
 
 	if last > count {
 		last = count
 	}
 
-	return c.elements[element][first:last]
+	return list[first:last]
 }
 
-// TODO: tests with go routines
 func (c *Characters) CheckCharacter(name string) bool {
-	c.cmu.RLock()
-	defer c.cmu.RUnlock()
-
 	_, ok := c.characters[name]
 
 	return ok
 }
 
-// TODO: tests with go routines
 func (c *Characters) CheckElement(element string) bool {
-	c.emu.RLock()
-	defer c.emu.RUnlock()
-
 	_, ok := c.elements[element]
 
 	return ok

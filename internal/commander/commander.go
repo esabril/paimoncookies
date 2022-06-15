@@ -7,6 +7,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+const DefaultMaxDataValuesOnMenu = 6
+
 type Commander struct {
 	bot       *tgbotapi.BotAPI
 	commander *commands.Commander
@@ -15,9 +17,12 @@ type Commander struct {
 
 func New(bot *tgbotapi.BotAPI, s *service.Service, templatePath string) *Commander {
 	return &Commander{
-		bot:       bot,
-		service:   s,
-		commander: commands.NewCommander(s, templatePath, pager.NewPager(s.Characters.GetElements())),
+		bot:     bot,
+		service: s,
+		commander: commands.NewCommander(s, templatePath, pager.NewPager(
+			s.Characters.GetElements(),
+			DefaultMaxDataValuesOnMenu,
+		)),
 	}
 }
 

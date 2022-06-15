@@ -1,0 +1,1 @@
+❌ I cannot show you what you want, only error in {{ .ErrorCase }}
