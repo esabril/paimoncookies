@@ -1,6 +1,7 @@
 package characters
 
 import (
+	"github.com/esabril/paimoncookies/internal/service/characters/model"
 	"github.com/esabril/paimoncookies/internal/service/characters/repository"
 	"github.com/jmoiron/sqlx"
 	"log"
@@ -123,4 +124,13 @@ func (c *Characters) CheckElement(element string) bool {
 	_, ok := c.elements[element]
 
 	return ok
+}
+
+func (c *Characters) GetCharacterByName(name string) (model.Character, error) {
+	ch, err := c.repo.GetCharacterByName(name)
+	if err != nil {
+		log.Println("Error while getting character by name:", err.Error())
+	}
+
+	return ch, err
 }

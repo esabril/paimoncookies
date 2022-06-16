@@ -1,11 +1,35 @@
 package commands
 
 import (
+	"fmt"
+	"log"
 	"strings"
 )
 
 func (c *Commander) GetCharacterInfo(name string) string {
-	return "Вот тебе информация о персонаже " + name // todo: render
+	character, err := c.service.Archive.GetCharacterInfo(name)
+	if err != nil {
+		return c.renderer.RenderError(fmt.Sprintf("информация о персонаже %s", name))
+	}
+
+	character.Element = c.renderer.GetEmojiToElement(character.Element)
+	today := c.service.World.GetWeekdayTranslation(c.service.TodayWeekday)
+
+	for i, wd := range character.Materials.TalentBook.Weekdays {
+		if wd == today {
+			character.Materials.TalentBook.Weekdays[i] = fmt.Sprintf("🗓 *%s*", wd)
+			break
+		}
+	}
+
+	result, err := c.renderer.Render("character.tpl", character)
+	if err != nil {
+		log.Printf("Unable to render Character template: %s\n", err.Error())
+
+		return c.renderer.RenderError(fmt.Sprintf("информация о персонаже %s", name))
+	}
+
+	return result
 }
 
 func (c *Commander) isCharacter(reply string) bool {

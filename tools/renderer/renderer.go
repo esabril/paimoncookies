@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"log"
 	"strings"
-	"sync"
 )
 
 // CommonErrorMessage Little Trick: if user gives a message without any emoji — something wrong with renderer in common
@@ -14,7 +13,6 @@ const CommonErrorMessage = "Ой, что-то пошло не так. Давай
 
 type Renderer struct {
 	TemplatePath      string
-	emu               sync.RWMutex
 	ElementsToEmojis  map[string]string
 	PreviousPageEmoji string
 	NextPageEmoji     string
@@ -38,15 +36,21 @@ func NewRenderer(templatePath string) *Renderer {
 }
 
 func (r *Renderer) AddEmojiToElement(el string) string {
-	r.emu.RLock()
 	emoji, ok := r.ElementsToEmojis[el]
-	r.emu.RUnlock()
-
 	if !ok {
 		return el
 	}
 
 	return fmt.Sprintf("%s %s", emoji, el)
+}
+
+func (r *Renderer) GetEmojiToElement(el string) string {
+	emoji, ok := r.ElementsToEmojis[el]
+	if !ok {
+		return el
+	}
+
+	return emoji
 }
 
 func (r *Renderer) Render(name string, params interface{}) (string, error) {

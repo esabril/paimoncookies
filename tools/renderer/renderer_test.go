@@ -90,3 +90,29 @@ func TestRenderer_AddEmojiToElement(t *testing.T) {
 		})
 	}
 }
+
+func TestRenderer_GetEmojiToElement(t *testing.T) {
+	t.Parallel()
+
+	r := NewRenderer("path")
+
+	testCases := []struct {
+		Element  string
+		Expected string
+	}{
+		{"Гео", "🔶"},
+		{"Гидро", "💧"},
+		{"Пиро", "🔥"},
+		{"Анемо", "🍃"},
+		{"Крио", "❄"},
+		{"Электро", "⚡"},
+		{"Дендро", "🌱"},
+		{"Неизвестный", "Неизвестный"},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.Element, func(t *testing.T) {
+			assert.Equal(t, tt.Expected, r.GetEmojiToElement(tt.Element))
+		})
+	}
+}

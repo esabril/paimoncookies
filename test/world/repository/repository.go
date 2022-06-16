@@ -49,6 +49,36 @@ func (mr *MockIWorldRepoMockRecorder) GetRegions() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRegions", reflect.TypeOf((*MockIWorldRepo)(nil).GetRegions))
 }
 
+// GetTalentBookByType mocks base method.
+func (m *MockIWorldRepo) GetTalentBookByType(bookType string) (model.TalentBook, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTalentBookByType", bookType)
+	ret0, _ := ret[0].(model.TalentBook)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTalentBookByType indicates an expected call of GetTalentBookByType.
+func (mr *MockIWorldRepoMockRecorder) GetTalentBookByType(bookType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTalentBookByType", reflect.TypeOf((*MockIWorldRepo)(nil).GetTalentBookByType), bookType)
+}
+
+// GetTalentBookWeekdays mocks base method.
+func (m *MockIWorldRepo) GetTalentBookWeekdays(bookType string) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTalentBookWeekdays", bookType)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTalentBookWeekdays indicates an expected call of GetTalentBookWeekdays.
+func (mr *MockIWorldRepoMockRecorder) GetTalentBookWeekdays(bookType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTalentBookWeekdays", reflect.TypeOf((*MockIWorldRepo)(nil).GetTalentBookWeekdays), bookType)
+}
+
 // GetWeekdayTalentBooksWithLocation mocks base method.
 func (m *MockIWorldRepo) GetWeekdayTalentBooksWithLocation(weekday string) ([]model.TalentBook, error) {
 	m.ctrl.T.Helper()

@@ -34,6 +34,21 @@ func (m *MockICharactersRepo) EXPECT() *MockICharactersRepoMockRecorder {
 	return m.recorder
 }
 
+// GetCharacterByName mocks base method.
+func (m *MockICharactersRepo) GetCharacterByName(name string) (model.Character, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCharacterByName", name)
+	ret0, _ := ret[0].(model.Character)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCharacterByName indicates an expected call of GetCharacterByName.
+func (mr *MockICharactersRepoMockRecorder) GetCharacterByName(name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCharacterByName", reflect.TypeOf((*MockICharactersRepo)(nil).GetCharacterByName), name)
+}
+
 // GetCharactersList mocks base method.
 func (m *MockICharactersRepo) GetCharactersList() ([]model.Character, error) {
 	m.ctrl.T.Helper()
