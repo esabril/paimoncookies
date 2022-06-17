@@ -18,7 +18,6 @@ func (m *Manager) getElementButtons(elements []string) []tgbotapi.KeyboardButton
 		buttons = append(buttons, tgbotapi.NewKeyboardButton(el))
 	}
 
-	buttons = append(buttons, tgbotapi.NewKeyboardButton(ReplyKeyboardTextToAllElements))
 	buttons = append(buttons, tgbotapi.NewKeyboardButton(ReplyKeyboardTextToMainMenu))
 
 	return buttons

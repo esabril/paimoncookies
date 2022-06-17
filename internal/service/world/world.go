@@ -135,7 +135,8 @@ func (w *World) GetTalentBookByName(bookType string) (model.TalentBook, error) {
 		translate = append(translate, w.GetWeekdayTranslation(wd))
 	}
 
-	translate = append(translate, "воскресенье") // todo: to const
+	// We can get any resources on Sunday
+	translate = append(translate, model.RussianSunday)
 	book.Weekdays = translate
 
 	return book, nil

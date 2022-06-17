@@ -43,35 +43,39 @@ func (c *Commander) HandleMessage(msg *tgbotapi.MessageConfig, text string) {
 	if c.isElement(text) {
 		c.KeyboardManager.SetPageFromReply(text, msg.ChatID)
 
-		msg.Text = "Давай посмотрим на них" // todo: text
-		msg.ReplyMarkup = c.KeyboardManager.ForCharacters(c.getElementFromReply(text), msg.ChatID)
+		element := c.getElementFromReply(text)
+		msg.Text = c.GetCharacterMenuRules(element)
+		msg.ReplyMarkup = c.KeyboardManager.ForCharacters(element, msg.ChatID)
 
 		return
 	}
 
-	// If we don't work without character's menu, we flush chatId page cache for current chatId
-	c.KeyboardManager.FlushPager(msg.ChatID)
+	if c.isFlushPagerCase(text) {
+		c.KeyboardManager.FlushPager(msg.ChatID)
+	}
 
 	if c.isCharacter(text) {
-		msg.Text = c.GetCharacterInfo(text)
+		info, element := c.GetCharacterInfo(text)
+		msg.Text = info
+		msg.ReplyMarkup = c.KeyboardManager.ForCharacters(element, msg.ChatID)
 
 		return
 	}
 
 	switch text {
 	case keyboard.ReplyKeyboardTextToMainMenu:
-		msg.Text = "Что ты хочешь узнать?" // TODO: new text
+		msg.Text = "🌸 О чем Паймон может тебе рассказать?"
 		msg.ReplyMarkup = c.KeyboardManager.GetMainMenu()
 		break
 	case keyboard.ReplyKeyboardTextToAllElements:
-		msg.Text = "Давай поищем кого-нибудь еще..." // TODO: текст
+		msg.Text = "🌸 Давай поищем кого-нибудь еще..."
 		msg.ReplyMarkup = c.KeyboardManager.ForElements()
 		break
 	case keyboard.ReplyKeyboardTextAgenda:
 		msg.Text = c.GetAgenda()
 		break
 	case keyboard.ReplyKeyboardTextCharacters:
-		msg.Text = "Конечно. О ком хочешь узнать?" // todo: To template with rules
+		msg.Text = c.GetCharacterMenuRules("")
 		msg.ReplyMarkup = c.KeyboardManager.ForElements()
 		break
 	default:
@@ -79,4 +83,10 @@ func (c *Commander) HandleMessage(msg *tgbotapi.MessageConfig, text string) {
 		msg.ReplyMarkup = c.KeyboardManager.GetMainMenu()
 		break
 	}
+}
+
+// Cases for which we do not reset the paginator:
+// - Characters menu
+func (c *Commander) isFlushPagerCase(text string) bool {
+	return text != keyboard.ReplyKeyboardTextCharacters && !c.isCharacter(text)
 }

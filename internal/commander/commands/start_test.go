@@ -8,7 +8,7 @@ import (
 
 func TestCommander_GetStartSuccessful(t *testing.T) {
 	s := &service.Service{}
-	c := NewCommander(s, templatePath, nil)
+	c := NewCommander(s, DefaultTemplatePath, nil)
 
 	expected := `Привет, Путешественник! 🌸
 

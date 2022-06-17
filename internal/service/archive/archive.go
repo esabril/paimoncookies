@@ -3,7 +3,9 @@ package archive
 import (
 	"github.com/esabril/paimoncookies/internal/service/characters"
 	"github.com/esabril/paimoncookies/internal/service/characters/model"
+	cRepo "github.com/esabril/paimoncookies/internal/service/characters/repository"
 	"github.com/esabril/paimoncookies/internal/service/world"
+	wRepo "github.com/esabril/paimoncookies/internal/service/world/repository"
 )
 
 // Archive service handle common information about all data in the game
@@ -16,6 +18,13 @@ func NewArchive(w *world.World, c *characters.Characters) *Archive {
 	return &Archive{
 		world:      w,
 		characters: c,
+	}
+}
+
+func NewMock(wrepo wRepo.IWorldRepo, crepo cRepo.ICharactersRepo) *Archive {
+	return &Archive{
+		world:      world.NewMock(wrepo),
+		characters: characters.NewMock(crepo, nil, nil),
 	}
 }
 

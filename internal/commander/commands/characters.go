@@ -6,12 +6,40 @@ import (
 	"strings"
 )
 
-func (c *Commander) GetCharacterInfo(name string) string {
-	character, err := c.service.Archive.GetCharacterInfo(name)
-	if err != nil {
-		return c.renderer.RenderError(fmt.Sprintf("информация о персонаже %s", name))
+func (c *Commander) GetCharacterMenuRules(element string) string {
+	showExtendedRules := false
+
+	if element != "" {
+		element = fmt.Sprintf("%s", c.renderer.AddEmojiToElement(element))
+	} else {
+		showExtendedRules = true
 	}
 
+	params := struct {
+		Element           string
+		ShowExtendedRules bool
+	}{
+		Element:           element,
+		ShowExtendedRules: showExtendedRules,
+	}
+
+	result, err := c.renderer.Render("character_rules.tpl", params)
+	if err != nil {
+		log.Printf("Unable to render Character Rules template: %s\n", err.Error())
+
+		return "Я не могу напомнить тебе правила поиска персонажей... но ты ведь и так их помнишь, правда?"
+	}
+
+	return result
+}
+
+func (c *Commander) GetCharacterInfo(name string) (result string, element string) {
+	character, err := c.service.Archive.GetCharacterInfo(name)
+	if err != nil {
+		return c.renderer.RenderError(fmt.Sprintf("информацию о персонаже %s", name)), ""
+	}
+
+	element = character.Element
 	character.Element = c.renderer.GetEmojiToElement(character.Element)
 	today := c.service.World.GetWeekdayTranslation(c.service.TodayWeekday)
 
@@ -22,14 +50,14 @@ func (c *Commander) GetCharacterInfo(name string) string {
 		}
 	}
 
-	result, err := c.renderer.Render("character.tpl", character)
+	result, err = c.renderer.Render("character.tpl", character)
 	if err != nil {
 		log.Printf("Unable to render Character template: %s\n", err.Error())
 
-		return c.renderer.RenderError(fmt.Sprintf("информация о персонаже %s", name))
+		return c.renderer.RenderError(fmt.Sprintf("информацию о персонаже %s", name)), element
 	}
 
-	return result
+	return result, element
 }
 
 func (c *Commander) isCharacter(reply string) bool {

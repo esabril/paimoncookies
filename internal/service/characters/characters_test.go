@@ -75,18 +75,22 @@ func TestCharacters_SimplifyCharacterName(t *testing.T) {
 
 	var TestCases = []struct {
 		Name     string
+		Exists   bool
 		Expected string
 	}{
-		{"Кэйа", "Кэйа"},
-		{"Дилюк", "Дилюк"},
-		{"Камисато Аято", "Аято"},
-		{"Аратаки Итто", "Итто"},
-		{"Еще какой-то персонаж", "Еще какой-то персонаж"},
+		{"Кэйа", false, "Кэйа"},
+		{"Дилюк", false, "Дилюк"},
+		{"Камисато Аято", true, "Аято"},
+		{"Аратаки Итто", true, "Итто"},
+		{"Еще какой-то персонаж", false, "Еще какой-то персонаж"},
 	}
 
 	for _, tt := range TestCases {
 		t.Run(tt.Name, func(t *testing.T) {
-			assert.Equal(t, tt.Expected, s.SimplifyCharacterName(tt.Name))
+			shortName, ok := s.SimplifyCharacterName(tt.Name)
+
+			assert.Equal(t, tt.Exists, ok)
+			assert.Equal(t, tt.Expected, shortName)
 		})
 	}
 }
@@ -157,16 +161,18 @@ func TestCharacters_CheckElement(t *testing.T) {
 func TestCharacters_CheckCharacter(t *testing.T) {
 	c := Characters{
 		characters: map[string]bool{
-			"Кэйя":     true,
-			"Эола":     true,
-			"Цици":     true,
-			"Дилюк":    true,
-			"Йоимия":   true,
-			"Тарталья": true,
+			"Кэйя":              true,
+			"Эола":              true,
+			"Цици":              true,
+			"Дилюк":             true,
+			"Йоимия":            true,
+			"Тарталья":          true,
+			"Камисато Аяка":     true,
+			"Сангономия Кокоми": true,
 		},
 	}
 
-	requests := []string{"Кэйя", "Эола", "Цици", "Сара", "Дилюк", "Аяка", "Йоимия", "Тарталья", "Лиза"}
+	requests := []string{"Кэйя", "Эола", "Цици", "Сара", "Дилюк", "Аяка", "Йоимия", "Тарталья", "Лиза", "Камисато Аяка", "Сангономия Кокоми"}
 
 	trueCount, falseCount := 0, 0
 	ch := make(chan bool)
@@ -187,6 +193,6 @@ func TestCharacters_CheckCharacter(t *testing.T) {
 
 	close(ch)
 
-	assert.Equal(t, 6, trueCount)
+	assert.Equal(t, 8, trueCount)
 	assert.Equal(t, 3, falseCount)
 }

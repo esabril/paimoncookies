@@ -8,12 +8,12 @@ type CharacterMaterials struct {
 
 // Character structure
 type Character struct {
-	Id             int
-	Name           string
-	Title          string
-	Region         string
-	Rarity         int8
-	Element        string
-	TalentBookType string             `db:"talent_book_type"`
-	Materials      CharacterMaterials `db:"-"`
+	Id             int                `json:"id"`
+	Name           string             `json:"name"`
+	Title          string             `json:"title"`
+	Region         string             `json:"region,omitempty"`
+	Rarity         int8               `json:"rarity,omitempty"`
+	Element        string             `json:"element,omitempty"`
+	TalentBookType string             `json:"talent_book_type,omitempty" db:"talent_book_type"`
+	Materials      CharacterMaterials `json:"materials,omitempty" db:"-"`
 }

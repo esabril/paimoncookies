@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-var templatePath = "../template/"
+const DefaultTemplatePath = "../template/"
 
 // TestCommander_GetAgendaSixDaysSuccessful Getting Agenda for all weekdays except Sunday
 func TestCommander_GetAgendaSixDaysSuccessful(t *testing.T) {
@@ -27,7 +27,7 @@ func TestCommander_GetAgendaSixDaysSuccessful(t *testing.T) {
 	}
 	c := NewCommander(
 		&s,
-		templatePath,
+		DefaultTemplatePath,
 		nil,
 	)
 
@@ -61,7 +61,7 @@ func TestCommander_GetAgendaSundaySuccessful(t *testing.T) {
 	}
 	c := NewCommander(
 		&s,
-		templatePath,
+		DefaultTemplatePath,
 		nil,
 	)
 
@@ -119,7 +119,7 @@ func TestCommander_GetAgendaDataFail(t *testing.T) {
 	}
 	c := NewCommander(
 		&s,
-		templatePath,
+		DefaultTemplatePath,
 		nil,
 	)
 

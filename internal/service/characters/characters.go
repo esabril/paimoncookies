@@ -40,8 +40,9 @@ func NewService(db *sqlx.DB) *Characters {
 	return s
 }
 
-func NewMock(elements map[string][]string, characters map[string]bool) *Characters {
+func NewMock(repo repository.ICharactersRepo, elements map[string][]string, characters map[string]bool) *Characters {
 	return &Characters{
+		repo:       repo,
 		elements:   elements,
 		characters: characters,
 	}
@@ -58,7 +59,7 @@ func (c *Characters) GetInitialCharactersList() (elements map[string][]string, c
 	characters = make(map[string]bool)
 
 	for _, ch := range list {
-		characterName := c.SimplifyCharacterName(ch.Title)
+		characterName, _ := c.SimplifyCharacterName(ch.Title)
 		characters[characterName] = true
 
 		_, ok := elements[ch.Element]
@@ -73,14 +74,14 @@ func (c *Characters) GetInitialCharactersList() (elements map[string][]string, c
 }
 
 // SimplifyCharacterName example: Камисато Аято -> Аято
-func (c *Characters) SimplifyCharacterName(name string) string {
+func (c *Characters) SimplifyCharacterName(name string) (string, bool) {
 	shortName, ok := simpleNames[name]
 
 	if !ok {
-		return name
+		return name, false
 	}
 
-	return shortName
+	return shortName, true
 }
 
 func (c *Characters) GetElements() map[string][]string {
@@ -116,6 +117,12 @@ func (c *Characters) GetElementCharacters(element string, first, last int) []str
 
 func (c *Characters) CheckCharacter(name string) bool {
 	_, ok := c.characters[name]
+
+	if !ok {
+		_, ok := c.SimplifyCharacterName(name)
+
+		return ok
+	}
 
 	return ok
 }

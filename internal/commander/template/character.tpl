@@ -1,6 +1,5 @@
-*{{ .Rarity }}⭐ {{ .Element}} {{ .Title }}*
-🌏 Регион: {{ .Region }}
+*{{ .Title }}* {{ .Element}} *{{ .Rarity }}*★
+Регион: {{ .Region }}
 
-*Материалы для прокачки:*
-📚 Книги талантов: {{ .Materials.TalentBook.Title }} (🏛 {{ .Materials.TalentBook.Location }})
-Можно получить в дни: {{ join .Materials.TalentBook.Weekdays ", "}}
+📚 *Книги талантов:* «{{ .Materials.TalentBook.Title }}»
+Можно получить: {{ join .Materials.TalentBook.Weekdays ", "}}

@@ -1,5 +1,7 @@
 package model
 
+const RussianSunday = "воскресенье"
+
 // Agenda structure
 type Agenda struct {
 	Weekday    string           `json:"weekday"`

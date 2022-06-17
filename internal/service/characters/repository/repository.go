@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"github.com/esabril/paimoncookies/internal/service/characters/model"
 	"github.com/jmoiron/sqlx"
 )
@@ -13,6 +14,11 @@ type ICharactersRepo interface {
 
 type repo struct {
 	db *sqlx.DB
+}
+
+// NonTeyvatWorldChracters "Guest Stars" from another universes
+var NonTeyvatWorldChracters = map[string]bool{
+	"Элой": true,
 }
 
 func New(db *sqlx.DB) ICharactersRepo {
@@ -35,16 +41,29 @@ func (r *repo) GetCharactersList() ([]model.Character, error) {
 func (r *repo) GetCharacterByName(name string) (model.Character, error) {
 	var c []model.Character
 	args := map[string]interface{}{
-		"name": name,
+		"name": fmt.Sprintf("%%%s%%", name),
 	}
 
-	stmt, err := r.db.PrepareNamed(
-		`SELECT c.title AS title, e.title AS element, rarity, talent_book_type, r.title AS region 
-		FROM character c 
-		    JOIN element e ON c.element = e.name
-			JOIN region r ON c.region = r.name
-		WHERE c.title = :name
-		LIMIT 1`)
+	_, NonTeyvatCharacter := NonTeyvatWorldChracters[name]
+	regionColumn, joinRegion := "", ""
+
+	if NonTeyvatCharacter {
+		regionColumn = "c.region AS region"
+	} else {
+		regionColumn = "r.title AS region"
+		joinRegion = "JOIN region r ON c.region = r.name"
+	}
+
+	query := fmt.Sprintf(
+		`SELECT c.title AS title, e.title AS element, rarity, talent_book_type, %s
+			FROM character c 
+			JOIN element e ON c.element = e.name %s
+			WHERE c.title LIKE :name LIMIT 1`,
+		regionColumn,
+		joinRegion,
+	)
+
+	stmt, err := r.db.PrepareNamed(query)
 
 	if err != nil {
 		return model.Character{}, err
