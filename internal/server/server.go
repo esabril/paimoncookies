@@ -45,6 +45,7 @@ func configRoutes(r *gin.Engine, s *service.Service, c *service.Config) {
 
 	v1 := ag.Group("/v1")
 	v1.GET("/agenda", handle(api.GetAgenda, s))
+	v1.GET("/characters", handle(api.GetCharacters, s))
 }
 
 // Auxiliary function for setting additional arguments to API handlers

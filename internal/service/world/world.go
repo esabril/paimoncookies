@@ -114,3 +114,34 @@ func (w *World) GetAgendaWeaponMaterials(weekday string) (map[string][]model.Wea
 
 	return materials, err
 }
+
+func (w *World) GetTalentBookByName(bookType string) (model.TalentBook, error) {
+	book, err := w.repo.GetTalentBookByType(bookType)
+	if err != nil {
+		log.Println("Error while getting Talent Book by type:", err.Error())
+
+		return model.TalentBook{}, err
+	}
+
+	weekdays, err := w.repo.GetTalentBookWeekdays(bookType)
+	if err != nil {
+		log.Println("Error while getting Talent Book Weekdays by type:", err.Error())
+
+		return model.TalentBook{}, err
+	}
+
+	translate := make([]string, 0, len(weekdays))
+	for _, wd := range weekdays {
+		translate = append(translate, w.GetWeekdayTranslation(wd))
+	}
+
+	// We can get any resources on Sunday
+	translate = append(translate, model.RussianSunday)
+	book.Weekdays = translate
+
+	return book, nil
+}
+
+func (w *World) GetWeekdayTranslation(wd string) string {
+	return model.RussianWeekdays[wd]
+}

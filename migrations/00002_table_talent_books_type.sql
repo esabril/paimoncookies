@@ -22,8 +22,8 @@ INSERT INTO talent_books_type (title, type, location) VALUES
     ('Об Усердии', 'diligence', 'liyue'),
     ('О Золоте', 'gold', 'liyue'),
     ('О Бренности', 'transience', 'inazuma'),
-    ('Об изяществе', 'elegance', 'inazuma'),
-    ('О свете', 'light', 'inazuma')
+    ('Об Изяществе', 'elegance', 'inazuma'),
+    ('О Свете', 'light', 'inazuma')
 ;
 
 -- +goose Down

@@ -2,6 +2,8 @@ package service
 
 import (
 	"fmt"
+	"github.com/esabril/paimoncookies/internal/service/archive"
+	"github.com/esabril/paimoncookies/internal/service/characters"
 	"github.com/esabril/paimoncookies/internal/service/world"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -15,6 +17,8 @@ type Service struct {
 	Config       *Config
 	TodayWeekday string
 	World        *world.World
+	Characters   *characters.Characters
+	Archive      *archive.Archive
 }
 
 // NewService creates new service
@@ -36,9 +40,14 @@ func NewService(c *Config) *Service {
 		log.Fatalf("Unable to connect to database: %s\n", err.Error())
 	}
 
+	w := world.NewService(db)
+	ch := characters.NewService(db)
+
 	return &Service{
-		Config: c,
-		World:  world.NewService(db),
+		Config:     c,
+		World:      w,
+		Characters: ch,
+		Archive:    archive.NewArchive(w, ch),
 	}
 }
 

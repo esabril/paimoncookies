@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8087:8087"
+    volumes:
+      - .:/code
+    environment:
+      PCOOKIES_DB_HOST: postgres
+      PCOOKIES_BOT_TOKEN:
+    depends_on:
+      - postgres
+  postgres:
+    image: "postgres:alpine"
+    ports:
+      - '5432:5432'
+    volumes:
+      - "dbdata:/var/lib/postgresql/data"
+    restart: always
+    environment:
+      POSTGRES_USER: paimon
+      POSTGRES_PASSWORD: paimon
+      POSTGRES_DB: paimoncookies
+
+volumes:
+  dbdata:
+    driver: local
