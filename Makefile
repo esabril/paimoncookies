@@ -86,4 +86,4 @@ clean:
 
 .PHONY: dockerize
 dockerize:
-	docker build --build-arg tag_version=$(GIT_TAG) . --tag=paimoncookies:$(GIT_TAG)
+	docker build --build-arg tag_version=$(GIT_TAG) . --tag=$(DOCKER_REPO)paimoncookies:$(GIT_TAG)
