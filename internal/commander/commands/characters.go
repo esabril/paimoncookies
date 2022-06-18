@@ -45,7 +45,7 @@ func (c *Commander) GetCharacterInfo(name string) (result string, element string
 
 	for i, wd := range character.Materials.TalentBook.Weekdays {
 		if wd == today {
-			character.Materials.TalentBook.Weekdays[i] = fmt.Sprintf("🗓 *%s*", wd)
+			character.Materials.TalentBook.Weekdays[i] = fmt.Sprintf("📍 *%s*", wd)
 			break
 		}
 	}
