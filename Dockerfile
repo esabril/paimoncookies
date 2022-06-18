@@ -3,9 +3,10 @@ ARG build_image=golang:1.18.3-alpine3.16
 FROM ${build_image} as build_stage
 
 ENV GO111MODULE=on
+ARG tag_version
 
 # Application env
-ENV PCOOKIES_APP_VERSION=0.2.0 \
+ENV PCOOKIES_APP_VERSION=$tag_version \
     PCOOKIES_PCOOKIES_TIMEZONE=Asia/Almaty \
 
     # Database

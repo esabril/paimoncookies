@@ -9,6 +9,7 @@ DB_NAME=paimoncookies
 DB_SSL=disable
 
 GO_BIN=$(shell go env GOPATH)/bin
+GIT_TAG=$(shell git describe --tags)
 
 .PHONY: all
 all: start
@@ -83,4 +84,6 @@ stop:
 clean:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) down --rmi local -v
 
-# todo: docker build target (make dockerize)
+.PHONY: dockerize
+dockerize:
+	docker build --build-arg tag_version=$(GIT_TAG) . --tag=paimoncookies:$(GIT_TAG)
