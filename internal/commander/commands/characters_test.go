@@ -170,11 +170,16 @@ func TestCommander_GetCharacterInfo(t *testing.T) {
 		GetCharacterByName("Венти").
 		DoAndReturn(func(name string) (cModel.Character, error) {
 			return cModel.Character{
-				Title:          "Венти",
-				Region:         "Мондштадт",
-				Rarity:         5,
-				Element:        "Анемо",
-				TalentBookType: "ballad",
+				Title:                    "Венти",
+				Region:                   "Мондштадт",
+				Rarity:                   5,
+				Element:                  "Анемо",
+				TalentBookType:           "ballad",
+				TalentBossDrop:           "tail_of_boreas",
+				AscensionBossDrop:        "hurricane_seed",
+				AscensionGem:             "vayuda_turquoise",
+				AscensionLocalSpeciality: "cecilia",
+				CommonAscensionMaterial:  "slime",
 			}, nil
 		}).MaxTimes(1).MaxTimes(1)
 
@@ -195,6 +200,68 @@ func TestCommander_GetCharacterInfo(t *testing.T) {
 			}, nil
 		}).MinTimes(1).MaxTimes(1)
 
+	w.EXPECT().
+		GetAscensionMaterialsByNames(gomock.Any()).
+		DoAndReturn(func(names []string) ([]wModel.AscensionMaterial, error) {
+			return []wModel.AscensionMaterial{
+				{
+					Title: "Сесилия",
+					Type:  "local_speciality",
+				},
+				{
+					Title: "Слаймы",
+					Type:  "common",
+				},
+			}, nil
+		}).MinTimes(1).MaxTimes(1)
+
+	w.EXPECT().
+		GetGemByName("vayuda_turquoise").
+		DoAndReturn(func(name string) (wModel.Gem, error) {
+			return wModel.Gem{
+				Name:  "vayuda_turquoise",
+				Title: "Бирюза Вайюда",
+			}, nil
+		}).MinTimes(1).MaxTimes(1)
+
+	w.EXPECT().
+		GetGemDropInfoByName("vayuda_turquoise").
+		DoAndReturn(func(name string) ([]wModel.BossDrop, error) {
+			return []wModel.BossDrop{
+				{
+					Boss: "Анемо гипостазис",
+					Type: "world",
+				},
+				{
+					Boss: "Двалин",
+					Type: "weekly",
+				},
+			}, nil
+		}).MinTimes(1).MaxTimes(1)
+
+	w.EXPECT().
+		GetWorldBossDropByName("hurricane_seed").
+		DoAndReturn(func(name string) (wModel.BossDrop, error) {
+			return wModel.BossDrop{
+				Title:    "Семя урагана",
+				Boss:     "Анемо гипостазис",
+				Location: "Мондштадт",
+				Type:     "world",
+			}, nil
+		}).MinTimes(1).MaxTimes(1)
+
+	w.EXPECT().
+		GetWeeklyBossDropByName("tail_of_boreas").
+		DoAndReturn(func(name string) (wModel.BossDrop, error) {
+			return wModel.BossDrop{
+				Title:    "Хвост Борея",
+				Boss:     "Андриус",
+				Location: "Мондштадт",
+				Domain:   "Испытание Волка Севера",
+				Type:     "weekly",
+			}, nil
+		}).MinTimes(1).MaxTimes(1)
+
 	cmdr := Commander{
 		service: &service.Service{
 			TodayWeekday: "saturday",
@@ -206,10 +273,26 @@ func TestCommander_GetCharacterInfo(t *testing.T) {
 	expected := `*Венти* 🍃 *5*★
 Регион: Мондштадт
 
-📚 *Книги талантов:* «О Поэзии»
-Можно получить: среда, 📍 *суббота*, воскресенье`
+*Возвышение персонажа (1-90):*
+*🟢 Бирюза Вайюда* — 1/9/9/6 шт.
+💥 *Семя урагана* — 2/4/8/12/20 — 46 шт.
+Можно получить: Анемо гипостазис, Мондштадт
+🌺 *Сесилия* — 3/10/20/30/45/60 — 168 шт.
+🦴 *Слаймы* — 18/30/36 шт.
+🧠 *«Опыт героя»* — 432 шт.
+💰 *Мора* — 420 000
 
-	result, element := cmdr.GetCharacterInfo("Венти")
+*Возвышение талантов (1-10):*
+📚 *Книги талантов:* «О Поэзии» — 9/63/114 шт.
+Когда: среда, 📍 *суббота*, воскресенье
+🦴 *Слаймы* — 18/30/36 шт.
+⚜ *Хвост Борея* — 18 шт.
+Можно получить: Андриус (Испытание Волка Севера), Мондштадт
+👑 *Корона прозрения* — 3 шт.
+💰 *Мора* — 4 950 000`
+
+	result, element, gem := cmdr.GetCharacterInfo("Венти")
 	assert.Equal(t, expected, result)
 	assert.Equal(t, "Анемо", element)
+	assert.Equal(t, "\U0001F7E2 Бирюза Вайюда", gem)
 }

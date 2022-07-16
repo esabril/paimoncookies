@@ -8,7 +8,7 @@ func (m *Manager) ForElements() tgbotapi.ReplyKeyboardMarkup {
 	elements := m.getElementsWithEmojis()
 	buttons := m.getElementButtons(elements)
 
-	return m.getResizedKeyboard(buttons, CountButtonsInRow)
+	return m.getResizedKeyboard(nil, buttons, CountButtonsInRow)
 }
 
 func (m *Manager) getElementButtons(elements []string) []tgbotapi.KeyboardButton {

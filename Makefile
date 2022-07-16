@@ -76,6 +76,11 @@ run-app-tests: mock-generate
 run-test-coverage:
 	go test ./... -coverprofile test/cover.out && go tool cover -html=test/cover.out
 
+# Pretty tests result
+.PHONY: gts
+gts:
+	go install gotest.tools/gotestsum@latest && gotestsum
+
 .PHONY: stop
 stop:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) down
@@ -87,3 +92,7 @@ clean:
 .PHONY: dockerize
 dockerize:
 	docker build --build-arg tag_version=$(GIT_TAG) . --tag=$(DOCKER_REPO)paimoncookies:$(GIT_TAG)
+
+.PHONY: go-export
+go-export:
+	export PATH=$PATH:/usr/local/go/bin && go version

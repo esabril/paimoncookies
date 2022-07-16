@@ -45,7 +45,7 @@ func (c *Commander) HandleMessage(msg *tgbotapi.MessageConfig, text string) {
 
 		element := c.getElementFromReply(text)
 		msg.Text = c.GetCharacterMenuRules(element)
-		msg.ReplyMarkup = c.KeyboardManager.ForCharacters(element, msg.ChatID)
+		msg.ReplyMarkup = c.KeyboardManager.ForCharacters(element, msg.ChatID, "")
 
 		return
 	}
@@ -55,9 +55,16 @@ func (c *Commander) HandleMessage(msg *tgbotapi.MessageConfig, text string) {
 	}
 
 	if c.isCharacter(text) {
-		info, element := c.GetCharacterInfo(text)
+		info, element, gem := c.GetCharacterInfo(text)
 		msg.Text = info
-		msg.ReplyMarkup = c.KeyboardManager.ForCharacters(element, msg.ChatID)
+		msg.ReplyMarkup = c.KeyboardManager.ForCharacters(element, msg.ChatID, gem)
+
+		return
+	}
+
+	if gem, ok := c.isGem(text); ok {
+		msg.Text = c.GetGemInfo(gem)
+		msg.ReplyMarkup = c.KeyboardManager.ForElements()
 
 		return
 	}

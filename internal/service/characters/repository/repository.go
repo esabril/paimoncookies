@@ -55,7 +55,10 @@ func (r *repo) GetCharacterByName(name string) (model.Character, error) {
 	}
 
 	query := fmt.Sprintf(
-		`SELECT c.title AS title, e.title AS element, rarity, talent_book_type, %s
+		`SELECT c.title AS title, e.title AS element, 
+				rarity, talent_book_type, talent_boss_drop, ascension_boss_drop, ascension_gem,
+				ascension_local_speciality, common_ascension_material,
+				%s
 			FROM character c 
 			JOIN element e ON c.element = e.name %s
 			WHERE c.title LIKE :name LIMIT 1`,

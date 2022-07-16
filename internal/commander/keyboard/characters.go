@@ -6,11 +6,17 @@ import (
 )
 
 // ForCharacters keyboard contains rows with max CountButtonsInRow buttons
-func (m *Manager) ForCharacters(element string, chatId int64) tgbotapi.ReplyKeyboardMarkup {
+func (m *Manager) ForCharacters(element string, chatId int64, gem string) tgbotapi.ReplyKeyboardMarkup {
+	var inlineButtons []tgbotapi.KeyboardButton
 	list := m.getCharactersListByPage(element, chatId)
+
+	if gem != "" {
+		inlineButtons = m.getInlineButtons([]string{gem})
+	}
+
 	buttons := m.getCharactersButtons(list, chatId, element)
 
-	return m.getResizedKeyboard(buttons, CountButtonsInRow)
+	return m.getResizedKeyboard(inlineButtons, buttons, CountButtonsInRow)
 }
 
 func (m *Manager) getCharactersButtons(list []string, chatId int64, element string) []tgbotapi.KeyboardButton {
@@ -47,4 +53,14 @@ func (m *Manager) getCharactersListByPage(element string, chatId int64) []string
 	first, last := m.pager.GetPositions(chatId, element)
 
 	return m.service.Characters.GetElementCharacters(element, first, last)
+}
+
+func (m *Manager) getInlineButtons(list []string) []tgbotapi.KeyboardButton {
+	buttons := make([]tgbotapi.KeyboardButton, 0)
+
+	for _, ib := range list {
+		buttons = append(buttons, tgbotapi.NewKeyboardButton(ib))
+	}
+
+	return buttons
 }

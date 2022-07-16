@@ -33,31 +33,34 @@ func (c *Commander) GetCharacterMenuRules(element string) string {
 	return result
 }
 
-func (c *Commander) GetCharacterInfo(name string) (result string, element string) {
+func (c *Commander) GetCharacterInfo(name string) (result string, element, gem string) {
 	character, err := c.service.Archive.GetCharacterInfo(name)
 	if err != nil {
-		return c.renderer.RenderError(fmt.Sprintf("информацию о персонаже %s", name)), ""
+		return c.renderer.RenderError(fmt.Sprintf("информацию о персонаже %s", name)), "", ""
 	}
 
 	element = character.Element
 	character.Element = c.renderer.GetEmojiToElement(character.Element)
 	today := c.service.World.GetWeekdayTranslation(c.service.TodayWeekday)
 
-	for i, wd := range character.Materials.TalentBook.Weekdays {
+	for i, wd := range character.Materials.TalentUpgrade.TalentBook.Weekdays {
 		if wd == today {
-			character.Materials.TalentBook.Weekdays[i] = fmt.Sprintf("📍 *%s*", wd)
+			character.Materials.TalentUpgrade.TalentBook.Weekdays[i] = fmt.Sprintf("📍 *%s*", wd)
 			break
 		}
 	}
+
+	gem = c.renderer.AddEmojiToGem(character.Materials.Ascension.Gem.Title)
+	character.Materials.Ascension.Gem.Title = gem
 
 	result, err = c.renderer.Render("character.tpl", character)
 	if err != nil {
 		log.Printf("Unable to render Character template: %s\n", err.Error())
 
-		return c.renderer.RenderError(fmt.Sprintf("информацию о персонаже %s", name)), element
+		return c.renderer.RenderError(fmt.Sprintf("информацию о персонаже %s", name)), element, ""
 	}
 
-	return result, element
+	return result, element, gem
 }
 
 func (c *Commander) isCharacter(reply string) bool {

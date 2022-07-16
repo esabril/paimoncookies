@@ -53,24 +53,33 @@ func (m *Manager) FlushPager(chatId int64) {
 	m.pager.Flush(chatId)
 }
 
-func (m *Manager) getKeyboard(buttons []tgbotapi.KeyboardButton, countButtonsInRow int) tgbotapi.ReplyKeyboardMarkup {
-	rows := m.getRows(buttons, countButtonsInRow)
+func (m *Manager) getKeyboard(inlineButtons, buttons []tgbotapi.KeyboardButton, countButtonsInRow int) tgbotapi.ReplyKeyboardMarkup {
+	rows := m.getRows(inlineButtons, buttons, countButtonsInRow)
 
 	return tgbotapi.NewReplyKeyboard(rows...)
 }
 
 func (m *Manager) getResizedKeyboard(
+	inlineButtons,
 	buttons []tgbotapi.KeyboardButton,
 	countButtonsInRow int,
 ) tgbotapi.ReplyKeyboardMarkup {
-	kb := m.getKeyboard(buttons, countButtonsInRow)
+	kb := m.getKeyboard(inlineButtons, buttons, countButtonsInRow)
 	kb.ResizeKeyboard = true
 
 	return kb
 }
 
-func (m *Manager) getRows(buttons []tgbotapi.KeyboardButton, countButtonsInRow int) [][]tgbotapi.KeyboardButton {
+func (m *Manager) getRows(inlineButtons, buttons []tgbotapi.KeyboardButton, countButtonsInRow int) [][]tgbotapi.KeyboardButton {
 	rows := make([][]tgbotapi.KeyboardButton, 0)
+
+	if len(inlineButtons) > 0 {
+		for _, ib := range inlineButtons {
+			row := []tgbotapi.KeyboardButton{ib}
+			rows = append(rows, row)
+		}
+	}
+
 	count := len(buttons)
 	first, last := 0, countButtonsInRow
 

@@ -1,6 +1,6 @@
 # Телеграм-бот «Печеньки для Паймон»
 
-#### Version 0.2.1
+#### Version 0.2.2
 
 ## Run
 Run project dev environment and all required migrations

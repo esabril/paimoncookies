@@ -2,7 +2,7 @@ package archive
 
 import (
 	"github.com/esabril/paimoncookies/internal/service/characters"
-	"github.com/esabril/paimoncookies/internal/service/characters/model"
+	cModel "github.com/esabril/paimoncookies/internal/service/characters/model"
 	cRepo "github.com/esabril/paimoncookies/internal/service/characters/repository"
 	"github.com/esabril/paimoncookies/internal/service/world"
 	wRepo "github.com/esabril/paimoncookies/internal/service/world/repository"
@@ -28,18 +28,69 @@ func NewMock(wrepo wRepo.IWorldRepo, crepo cRepo.ICharactersRepo) *Archive {
 	}
 }
 
-func (a *Archive) GetCharacterInfo(name string) (model.Character, error) {
+func (a *Archive) GetCharacterInfo(name string) (cModel.Character, error) {
 	character, err := a.characters.GetCharacterByName(name)
 	if err != nil {
-		return model.Character{}, err
+		return cModel.Character{}, err
 	}
 
-	talentBook, err := a.world.GetTalentBookByName(character.TalentBookType)
+	amNames := []string{character.CommonAscensionMaterial, character.AscensionLocalSpeciality}
+	commonAm, lsAm, err := a.world.GetCommonLocalSpecAscensionMaterialsByNames(amNames)
 	if err != nil {
-		return model.Character{}, err
+		return cModel.Character{}, err
 	}
 
-	character.Materials.TalentBook = talentBook
+	ac, err := a.GetCharacterAscension(character)
+	if err != nil {
+		return cModel.Character{}, err
+	}
+
+	ac.LocalSpeciality = lsAm
+	ac.CommonMaterial = commonAm
+
+	tu, err := a.GetCharacterTalentUpgrade(character)
+	if err != nil {
+		return cModel.Character{}, err
+	}
+
+	tu.CommonMaterial = commonAm
+
+	character.Materials.Ascension = ac
+	character.Materials.TalentUpgrade = tu
 
 	return character, nil
+}
+
+func (a *Archive) GetCharacterAscension(character cModel.Character) (cModel.CharacterAscension, error) {
+	gem, err := a.world.GetGemByName(character.AscensionGem)
+	if err != nil {
+		return cModel.CharacterAscension{}, err
+	}
+
+	worldBd, err := a.world.GetWorldBossDropByName(character.AscensionBossDrop)
+	if err != nil {
+		return cModel.CharacterAscension{}, err
+	}
+
+	return cModel.CharacterAscension{
+		Gem:      gem,
+		BossDrop: worldBd,
+	}, nil
+}
+
+func (a *Archive) GetCharacterTalentUpgrade(character cModel.Character) (cModel.CharacterTalentUpgrade, error) {
+	talentBook, err := a.world.GetTalentBookByName(character.TalentBookType)
+	if err != nil {
+		return cModel.CharacterTalentUpgrade{}, err
+	}
+
+	weeklyBd, err := a.world.GetWeeklyBossDropByName(character.TalentBossDrop)
+	if err != nil {
+		return cModel.CharacterTalentUpgrade{}, err
+	}
+
+	return cModel.CharacterTalentUpgrade{
+		TalentBook: talentBook,
+		BossDrop:   weeklyBd,
+	}, nil
 }

@@ -14,6 +14,7 @@ const CommonErrorMessage = "Ой, что-то пошло не так. Давай
 type Renderer struct {
 	TemplatePath      string
 	ElementsToEmojis  map[string]string
+	GemsToEmojis      map[string]string
 	PreviousPageEmoji string
 	NextPageEmoji     string
 }
@@ -29,6 +30,14 @@ func NewRenderer(templatePath string) *Renderer {
 			"Гео":     "🔶",
 			"Гидро":   "💧",
 			"Дендро":  "🌱",
+		},
+		GemsToEmojis: map[string]string{
+			"Агат Агнидус":     "🔴",
+			"Лазурит Варунада": "🔵",
+			"Аметист Ваджрада": "\U0001F7E3",
+			"Бирюза Вайюда":    "\U0001F7E2",
+			"Нефрит Шивада":    "💎",
+			"Топаз Притхива":   "\U0001F7E1",
 		},
 		PreviousPageEmoji: "⬅",
 		NextPageEmoji:     "➡",
@@ -51,6 +60,15 @@ func (r *Renderer) GetEmojiToElement(el string) string {
 	}
 
 	return emoji
+}
+
+func (r *Renderer) AddEmojiToGem(gem string) string {
+	emoji, ok := r.GemsToEmojis[gem]
+	if !ok {
+		return gem
+	}
+
+	return fmt.Sprintf("%s %s", emoji, gem)
 }
 
 func (r *Renderer) Render(name string, params interface{}) (string, error) {
