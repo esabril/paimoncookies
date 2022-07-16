@@ -116,3 +116,27 @@ func TestRenderer_GetEmojiToElement(t *testing.T) {
 		})
 	}
 }
+
+func TestRenderer_AddEmojiToGem(t *testing.T) {
+	t.Parallel()
+
+	r := NewRenderer("path")
+
+	testCases := []struct {
+		Gem      string
+		Expected string
+	}{
+		{"Агат Агнидус", "🔴 Агат Агнидус"},
+		{"Лазурит Варунада", "🔵 Лазурит Варунада"},
+		{"Аметист Ваджрада", "\U0001F7E3 Аметист Ваджрада"},
+		{"Бирюза Вайюда", "\U0001F7E2 Бирюза Вайюда"},
+		{"Нефрит Шивада", "💎 Нефрит Шивада"},
+		{"Топаз Притхива", "\U0001F7E1 Топаз Притхива"},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.Gem, func(t *testing.T) {
+			assert.Equal(t, tt.Expected, r.AddEmojiToGem(tt.Gem))
+		})
+	}
+}

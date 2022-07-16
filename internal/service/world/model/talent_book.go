@@ -8,3 +8,7 @@ type TalentBook struct {
 	Location string   `json:"location,omitempty"`
 	Weekdays []string `json:"-" db:"-"`
 }
+
+func (tb TalentBook) GetTotal() string {
+	return "9/63/114"
+}

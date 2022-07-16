@@ -142,6 +142,122 @@ func (w *World) GetTalentBookByName(bookType string) (model.TalentBook, error) {
 	return book, nil
 }
 
+func (w *World) GetGemByName(name string) (model.Gem, error) {
+	gem, err := w.repo.GetGemByName(name)
+	if err != nil {
+		log.Println("Error while getting Gem by name:", err.Error())
+
+		return model.Gem{}, err
+	}
+
+	di, err := w.GetGemDropInfo(name)
+	if err != nil {
+		log.Println("Error while getting Gem Drop Info:", err.Error())
+	}
+
+	gem.DropInfo = di
+
+	return gem, nil
+}
+
+func (w *World) FindGemByTitle(title string) (model.Gem, error) {
+	gem, err := w.repo.FindGemByTitle(title)
+	if err != nil {
+		log.Println("Error while getting Gem by title:", err.Error())
+
+		return model.Gem{}, err
+	}
+
+	di, err := w.GetGemDropInfo(gem.Name)
+	if err != nil {
+		log.Println("Error while getting Gem Drop Info:", err.Error())
+	}
+
+	gem.DropInfo = di
+
+	return gem, nil
+}
+
+func (w *World) GetWeeklyBossDropByName(name string) (model.BossDrop, error) {
+	bd, err := w.repo.GetWeeklyBossDropByName(name)
+	if err != nil {
+		log.Println("Error while getting Weekly Boss Drop by name:", err.Error())
+
+		return model.BossDrop{}, err
+	}
+
+	return bd, nil
+}
+
+func (w *World) GetWorldBossDropByName(name string) (model.BossDrop, error) {
+	bd, err := w.repo.GetWorldBossDropByName(name)
+	if err != nil {
+		log.Println("Error while getting World Boss Drop by name:", err.Error())
+
+		return model.BossDrop{}, err
+	}
+
+	return bd, nil
+}
+
+func (w *World) GetCommonLocalSpecAscensionMaterialsByNames(names []string) (
+	common model.AscensionMaterial,
+	localSpec model.AscensionMaterial,
+	err error,
+) {
+	ams, err := w.repo.GetAscensionMaterialsByNames(names)
+	if err != nil {
+		log.Println("Error while getting Ascension Materials by name:", err.Error())
+
+		return model.AscensionMaterial{}, model.AscensionMaterial{}, err
+	}
+
+	if len(ams) > 2 {
+		ams = ams[:2]
+	}
+
+	if ams[0].Type == "common" {
+		common, localSpec, err = ams[0], ams[1], nil
+	} else {
+		common, localSpec, err = ams[1], ams[0], nil
+	}
+
+	return
+}
+
+func (w *World) GetGemDropInfo(name string) (model.GemDropInfo, error) {
+	bd, err := w.repo.GetGemDropInfoByName(name)
+	if err != nil {
+		log.Println("Error while getting Gem Drop Info:", err.Error())
+
+		return model.GemDropInfo{}, err
+	}
+
+	weeklyBd, worldBd := make([]model.WeeklyBoss, 0), make([]model.WorldBoss, 0)
+
+	for _, d := range bd {
+		if d.Type == "weekly" {
+			weeklyBd = append(weeklyBd, model.WeeklyBoss{
+				Title:    d.Boss,
+				Location: d.Location,
+				Domain:   d.Domain,
+			})
+		} else {
+			worldBd = append(worldBd, model.WorldBoss{
+				Title:    d.Boss,
+				Location: d.Location,
+			})
+		}
+	}
+
+	info := model.GemDropInfo{
+		WeeklyBosses: weeklyBd,
+		WorldBosses:  worldBd,
+	}
+
+	return info, nil
+}
+
 func (w *World) GetWeekdayTranslation(wd string) string {
 	return model.RussianWeekdays[wd]
 }

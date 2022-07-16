@@ -34,6 +34,66 @@ func (m *MockIWorldRepo) EXPECT() *MockIWorldRepoMockRecorder {
 	return m.recorder
 }
 
+// FindGemByTitle mocks base method.
+func (m *MockIWorldRepo) FindGemByTitle(title string) (model.Gem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindGemByTitle", title)
+	ret0, _ := ret[0].(model.Gem)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindGemByTitle indicates an expected call of FindGemByTitle.
+func (mr *MockIWorldRepoMockRecorder) FindGemByTitle(title interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindGemByTitle", reflect.TypeOf((*MockIWorldRepo)(nil).FindGemByTitle), title)
+}
+
+// GetAscensionMaterialsByNames mocks base method.
+func (m *MockIWorldRepo) GetAscensionMaterialsByNames(names []string) ([]model.AscensionMaterial, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAscensionMaterialsByNames", names)
+	ret0, _ := ret[0].([]model.AscensionMaterial)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAscensionMaterialsByNames indicates an expected call of GetAscensionMaterialsByNames.
+func (mr *MockIWorldRepoMockRecorder) GetAscensionMaterialsByNames(names interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAscensionMaterialsByNames", reflect.TypeOf((*MockIWorldRepo)(nil).GetAscensionMaterialsByNames), names)
+}
+
+// GetGemByName mocks base method.
+func (m *MockIWorldRepo) GetGemByName(name string) (model.Gem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGemByName", name)
+	ret0, _ := ret[0].(model.Gem)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGemByName indicates an expected call of GetGemByName.
+func (mr *MockIWorldRepoMockRecorder) GetGemByName(name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGemByName", reflect.TypeOf((*MockIWorldRepo)(nil).GetGemByName), name)
+}
+
+// GetGemDropInfoByName mocks base method.
+func (m *MockIWorldRepo) GetGemDropInfoByName(name string) ([]model.BossDrop, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGemDropInfoByName", name)
+	ret0, _ := ret[0].([]model.BossDrop)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGemDropInfoByName indicates an expected call of GetGemDropInfoByName.
+func (mr *MockIWorldRepoMockRecorder) GetGemDropInfoByName(name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGemDropInfoByName", reflect.TypeOf((*MockIWorldRepo)(nil).GetGemDropInfoByName), name)
+}
+
 // GetRegions mocks base method.
 func (m *MockIWorldRepo) GetRegions() ([]model.Region, error) {
 	m.ctrl.T.Helper()
@@ -107,4 +167,34 @@ func (m *MockIWorldRepo) GetWeekdayWeaponMaterialsWithLocation(weekday string) (
 func (mr *MockIWorldRepoMockRecorder) GetWeekdayWeaponMaterialsWithLocation(weekday interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWeekdayWeaponMaterialsWithLocation", reflect.TypeOf((*MockIWorldRepo)(nil).GetWeekdayWeaponMaterialsWithLocation), weekday)
+}
+
+// GetWeeklyBossDropByName mocks base method.
+func (m *MockIWorldRepo) GetWeeklyBossDropByName(name string) (model.BossDrop, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWeeklyBossDropByName", name)
+	ret0, _ := ret[0].(model.BossDrop)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWeeklyBossDropByName indicates an expected call of GetWeeklyBossDropByName.
+func (mr *MockIWorldRepoMockRecorder) GetWeeklyBossDropByName(name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWeeklyBossDropByName", reflect.TypeOf((*MockIWorldRepo)(nil).GetWeeklyBossDropByName), name)
+}
+
+// GetWorldBossDropByName mocks base method.
+func (m *MockIWorldRepo) GetWorldBossDropByName(name string) (model.BossDrop, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWorldBossDropByName", name)
+	ret0, _ := ret[0].(model.BossDrop)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWorldBossDropByName indicates an expected call of GetWorldBossDropByName.
+func (mr *MockIWorldRepoMockRecorder) GetWorldBossDropByName(name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWorldBossDropByName", reflect.TypeOf((*MockIWorldRepo)(nil).GetWorldBossDropByName), name)
 }

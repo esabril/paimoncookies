@@ -2,8 +2,10 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"github.com/esabril/paimoncookies/internal/service/world/model"
 	"github.com/jmoiron/sqlx"
+	"strings"
 )
 
 // IWorldRepo common repo interface
@@ -13,6 +15,12 @@ type IWorldRepo interface {
 	GetRegions() ([]model.Region, error)
 	GetTalentBookByType(bookType string) (model.TalentBook, error)
 	GetTalentBookWeekdays(bookType string) ([]string, error)
+	GetGemByName(name string) (model.Gem, error)
+	GetWeeklyBossDropByName(name string) (model.BossDrop, error)
+	GetWorldBossDropByName(name string) (model.BossDrop, error)
+	GetAscensionMaterialsByNames(names []string) ([]model.AscensionMaterial, error)
+	FindGemByTitle(title string) (model.Gem, error)
+	GetGemDropInfoByName(name string) ([]model.BossDrop, error)
 }
 
 // Repository
@@ -123,7 +131,7 @@ func (r *repo) GetTalentBookByType(bookType string) (model.TalentBook, error) {
 	}
 
 	if len(books) == 0 {
-		return model.TalentBook{}, errors.New("Talent Book not found")
+		return model.TalentBook{}, errors.New("talent Book not found")
 	}
 
 	return books[0], err
@@ -143,4 +151,194 @@ func (r *repo) GetTalentBookWeekdays(bookType string) ([]string, error) {
 	err = stmt.Select(&books, args)
 
 	return books, err
+}
+
+func (r *repo) GetGemByName(name string) (model.Gem, error) {
+	var g []model.Gem
+	args := map[string]interface{}{
+		"name": name,
+	}
+
+	stmt, err := r.db.PrepareNamed(`SELECT * FROM gem WHERE name = :name LIMIT 1`)
+	if err != nil {
+		return model.Gem{}, err
+	}
+
+	err = stmt.Select(&g, args)
+	if err != nil {
+		return model.Gem{}, err
+	}
+
+	if len(g) == 0 {
+		return model.Gem{}, errors.New("gem not found")
+	}
+
+	return g[0], nil
+}
+
+func (r *repo) GetWeeklyBossDropByName(name string) (model.BossDrop, error) {
+	var bd []model.BossDrop
+
+	args := map[string]interface{}{
+		"name": name,
+	}
+
+	stmt, err := r.db.PrepareNamed(
+		`SELECT bd.title as title, wb.title as boss, wb.domain as domain, r.title AS location, 'weekly' AS type  
+				FROM boss_drop AS bd
+					JOIN weekly_boss AS wb ON bd.name = ANY(wb.talent_materials)
+					JOIN region AS r ON wb.location = r.name
+				WHERE bd.name = :name LIMIT 1`,
+	)
+	if err != nil {
+		return model.BossDrop{}, err
+	}
+
+	err = stmt.Select(&bd, args)
+	if err != nil {
+		return model.BossDrop{}, err
+	}
+
+	if len(bd) == 0 {
+		return model.BossDrop{}, errors.New("weekly boss drop not found")
+	}
+
+	return bd[0], nil
+}
+
+func (r *repo) GetWorldBossDropByName(name string) (model.BossDrop, error) {
+	var bd []model.BossDrop
+
+	args := map[string]interface{}{
+		"name": name,
+	}
+
+	stmt, err := r.db.PrepareNamed(
+		`SELECT bd.title as title, wb.title as boss, r.title AS location, 'world' AS type  
+				FROM boss_drop AS bd
+					JOIN world_boss AS wb ON bd.name = wb.ascension_material
+					JOIN region AS r ON wb.location = r.name
+				WHERE bd.name = :name LIMIT 1`,
+	)
+
+	if err != nil {
+		return model.BossDrop{}, err
+	}
+
+	err = stmt.Select(&bd, args)
+	if err != nil {
+		return model.BossDrop{}, err
+	}
+
+	if len(bd) == 0 {
+		return model.BossDrop{}, errors.New("world boss drop not found")
+	}
+
+	return bd[0], nil
+}
+
+func (r *repo) GetAscensionMaterialsByNames(names []string) ([]model.AscensionMaterial, error) {
+	result := make([]model.AscensionMaterial, 0)
+
+	arg := map[string]interface{}{
+		"names": names,
+	}
+
+	query, args, err := sqlx.Named(`SELECT title, type FROM ascension_material WHERE name IN (:names)`, arg)
+	if err != nil {
+		return nil, err
+	}
+
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	query = r.db.Rebind(query)
+
+	rows, err := r.db.Queryx(query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var m model.AscensionMaterial
+
+		err = rows.StructScan(&m)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, m)
+	}
+
+	return result, nil
+}
+
+func (r *repo) FindGemByTitle(title string) (model.Gem, error) {
+	var g []model.Gem
+	title = strings.ToLower(title)
+
+	args := map[string]interface{}{
+		"title": fmt.Sprintf("%%%s%%", title),
+	}
+
+	stmt, err := r.db.PrepareNamed(`SELECT * FROM gem WHERE LOWER(title) LIKE :title LIMIT 1`)
+	if err != nil {
+		return model.Gem{}, err
+	}
+
+	err = stmt.Select(&g, args)
+	if err != nil {
+		return model.Gem{}, err
+	}
+
+	if len(g) == 0 {
+		return model.Gem{}, errors.New("gem not found")
+	}
+
+	return g[0], err
+}
+
+func (r *repo) GetGemDropInfoByName(name string) ([]model.BossDrop, error) {
+	result := make([]model.BossDrop, 0)
+
+	args := map[string]interface{}{
+		"name": name,
+	}
+
+	stmt, err := r.db.PrepareNamed(
+		`SELECT wkb.id     AS id,
+			   wkb.title  AS boss,
+			   r.title    AS location,
+			   wkb.domain AS domain,
+			   'weekly'   AS type
+		FROM weekly_boss AS wkb
+				 JOIN region r on wkb.location = r.name
+		WHERE :name = ANY (wkb.gems)
+		UNION ALL
+		SELECT wb.id    AS id,
+			   wb.title AS boss,
+			   r.title  AS location,
+			   ''       AS domain,
+			   'world'  AS type
+		FROM world_boss AS wb
+				 JOIN region r on wb.location = r.name
+		WHERE :name = ANY (wb.gems)
+		ORDER BY id`,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	err = stmt.Select(&result, args)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(result) == 0 {
+		return nil, errors.New("there is no information about gem's drop info")
+	}
+
+	return result, nil
 }

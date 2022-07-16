@@ -16,5 +16,5 @@ func (m *Manager) GetMainMenu() tgbotapi.ReplyKeyboardMarkup {
 		tgbotapi.NewKeyboardButton(ReplyKeyboardTextCharacters),
 	}
 
-	return m.getKeyboard(buttons, CountMainMenuButtonsInRow)
+	return m.getKeyboard(nil, buttons, CountMainMenuButtonsInRow)
 }
