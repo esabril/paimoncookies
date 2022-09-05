@@ -47,6 +47,12 @@ migration-up:
 	cd migrations/ && \
  		 $(GO_BIN)/goose $(DB_DRIVER) $(DB_DRIVER)://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL) up
 
+# make migration-up-to v=13
+.PHONY: migration-up-to
+migration-up-to:
+	cd migrations/ && \
+ 		 $(GO_BIN)/goose $(DB_DRIVER) $(DB_DRIVER)://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL) up-to $(v)
+
 .PHONY: migration-status
 migration-status:
 	cd migrations/ && \
@@ -95,4 +101,4 @@ dockerize:
 
 .PHONY: go-export
 go-export:
-	export PATH=$PATH:/usr/local/go/bin && go version
+	export PATH=$$PATH:/usr/local/go/bin && go version

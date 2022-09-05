@@ -22,6 +22,7 @@ var simpleNames = map[string]string{
 	"Куки Синобу":       "Куки",
 	"Сангономия Кокоми": "Кокоми",
 	"Кудзё Сара":        "Сара",
+	"Сиканоин Хэйдзо":   "Хэйдзо",
 }
 
 func NewService(db *sqlx.DB) *Characters {

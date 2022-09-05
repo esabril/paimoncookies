@@ -7,7 +7,7 @@ ARG tag_version
 
 # Application env
 ENV PCOOKIES_APP_VERSION=$tag_version \
-    PCOOKIES_PCOOKIES_TIMEZONE=Asia/Almaty \
+    PCOOKIES_TIMEZONE=Asia/Almaty \
 
     # Database
     PCOOKIES_DB_DRIVER=postgres \
