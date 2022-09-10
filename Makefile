@@ -101,4 +101,4 @@ dockerize:
 
 .PHONY: go-export
 go-export:
-	export PATH=$$PATH:/usr/local/go/bin && go version
+	export PATH=$PATH:/usr/local/go/bin && go version
