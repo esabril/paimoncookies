@@ -3,9 +3,10 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/esabril/paimoncookies/internal/service/world/model"
 	"github.com/jmoiron/sqlx"
-	"strings"
 )
 
 // IWorldRepo common repo interface
@@ -43,8 +44,8 @@ func (r *repo) GetWeekdayTalentBooksWithLocation(weekday string) ([]model.Talent
 		"weekday": weekday,
 	}
 
-	query := `SELECT r.title AS location, t.title AS title FROM talent_books_type AS t
-			JOIN talent_books_weekday AS tbw ON t.type = tbw.type
+	query := `SELECT r.title AS location, t.title AS title FROM talent_book_type AS t
+			JOIN talent_book_weekday AS tbw ON t.type = tbw.type
 			JOIN region r on t.location = r.name
 			WHERE weekday = :weekday
 			ORDER BY r.id`
@@ -75,8 +76,8 @@ func (r *repo) GetWeekdayWeaponMaterialsWithLocation(weekday string) ([]model.We
 		"weekday": weekday,
 	}
 
-	query := `SELECT r.title AS location, t.title AS title, t.alias AS alias FROM weapon_materials_type AS t
-    		JOIN weapon_materials_weekday AS wmw ON t.type = wmw.type
+	query := `SELECT r.title AS location, t.title AS title, t.alias AS alias FROM weapon_material_type AS t
+    		JOIN weapon_material_weekday AS wmw ON t.type = wmw.type
     		JOIN region r on t.location = r.name
 			WHERE weekday = :weekday
 			ORDER BY r.id`
@@ -117,7 +118,7 @@ func (r *repo) GetTalentBookByType(bookType string) (model.TalentBook, error) {
 	}
 
 	stmt, err := r.db.PrepareNamed(`SELECT bt.id, bt.title, bt.type, r.title as location 
-		FROM talent_books_type bt 
+		FROM talent_book_type bt 
 		    JOIN region r on bt.location = r.name
         WHERE type = :bookType LIMIT 1`,
 	)
@@ -143,7 +144,7 @@ func (r *repo) GetTalentBookWeekdays(bookType string) ([]string, error) {
 		"type": bookType,
 	}
 
-	stmt, err := r.db.PrepareNamed(`SELECT weekday FROM talent_books_weekday WHERE type = :type`)
+	stmt, err := r.db.PrepareNamed(`SELECT weekday FROM talent_book_weekday WHERE type = :type`)
 	if err != nil {
 		return nil, err
 	}
