@@ -1,16 +1,35 @@
 package world
 
 import (
+	"log"
+
 	"github.com/esabril/paimoncookies/internal/service/world/model"
 	"github.com/esabril/paimoncookies/internal/service/world/repository"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
-	"log"
 )
+
+type WorldInterface interface {
+	CreateAgenda(weekday string) (*model.Agenda, error)
+	GetAgendaTalentBooks(weekday string) (map[string][]model.TalentBook, error)
+	GetAgendaWeaponMaterials(weekday string) (map[string][]model.WeaponMaterial, error)
+	GetTalentBookByName(bookType string) (model.TalentBook, error)
+	GetGemByName(name string) (model.Gem, error)
+	FindGemByTitle(title string) (model.Gem, error)
+	GetWeeklyBossDropByName(name string) (model.BossDrop, error)
+	GetWorldBossDropByName(name string) (model.BossDrop, error)
+	GetCommonLocalSpecAscensionMaterialsByNames(names []string) (
+		common model.AscensionMaterial,
+		localSpec model.AscensionMaterial,
+		err error,
+	)
+	GetGemDropInfo(name string) (model.GemDropInfo, error)
+	GetWeekdayTranslation(wd string) string
+}
 
 // World structure for resources
 type World struct {
-	repo repository.IWorldRepo
+	repo repository.RepositoryInterface
 }
 
 // NewService creates new world service
@@ -21,7 +40,7 @@ func NewService(db *sqlx.DB) *World {
 }
 
 // NewMock Service with configured mock repository
-func NewMock(mockRepo repository.IWorldRepo) *World {
+func NewMock(mockRepo repository.RepositoryInterface) *World {
 	return &World{
 		repo: mockRepo,
 	}

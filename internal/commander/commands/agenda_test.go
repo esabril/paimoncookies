@@ -2,28 +2,24 @@ package commands
 
 import (
 	"errors"
+
+	"testing"
+
 	"github.com/esabril/paimoncookies/internal/service"
 	"github.com/esabril/paimoncookies/internal/service/world"
 	"github.com/esabril/paimoncookies/internal/service/world/model"
-	repo "github.com/esabril/paimoncookies/test/world/repository"
-	"github.com/golang/mock/gomock"
+	repo "github.com/esabril/paimoncookies/internal/service/world/repository"
+
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 const DefaultTemplatePath = "../template/"
 
 // TestCommander_GetAgendaSixDaysSuccessful Getting Agenda for all weekdays except Sunday
 func TestCommander_GetAgendaSixDaysSuccessful(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	m := repo.NewMockIWorldRepo(ctrl)
-	configureWorldMockRepo(m)
-
 	s := service.Service{
 		TodayWeekday: "monday",
-		World:        world.NewMock(m),
+		World:        world.NewMock(getRepoMock()),
 	}
 	c := NewCommander(
 		&s,
@@ -49,15 +45,9 @@ func TestCommander_GetAgendaSixDaysSuccessful(t *testing.T) {
 
 // TestCommander_GetAgendaSundaySuccessful Getting Agenda for Sunday
 func TestCommander_GetAgendaSundaySuccessful(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	m := repo.NewMockIWorldRepo(ctrl)
-	configureWorldMockRepo(m)
-
 	s := service.Service{
 		TodayWeekday: "sunday",
-		World:        world.NewMock(m),
+		World:        world.NewMock(getRepoMock()),
 	}
 	c := NewCommander(
 		&s,
@@ -80,15 +70,9 @@ func TestCommander_GetAgendaSundaySuccessful(t *testing.T) {
 }
 
 func TestCommander_GetAgendaTemplateFail(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	m := repo.NewMockIWorldRepo(ctrl)
-	configureWorldMockRepo(m)
-
 	s := service.Service{
 		TodayWeekday: "monday",
-		World:        world.NewMock(m),
+		World:        world.NewMock(getRepoMock()),
 	}
 
 	c := NewCommander(
@@ -101,17 +85,10 @@ func TestCommander_GetAgendaTemplateFail(t *testing.T) {
 }
 
 func TestCommander_GetAgendaDataFail(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	m := repo.NewMockIWorldRepo(ctrl)
-
-	m.
-		EXPECT().
-		GetWeekdayTalentBooksWithLocation(gomock.Any()).
-		DoAndReturn(func(w string) ([]model.TalentBook, error) {
-			return nil, errors.New("something wrong with database")
-		}).MaxTimes(1).MinTimes(1)
+	m := getRepoMock()
+	m.GetWeekdayTalentBooksWithLocationFunc = func(w string) ([]model.TalentBook, error) {
+		return nil, errors.New("something wrong with database")
+	}
 
 	s := service.Service{
 		TodayWeekday: "monday",
@@ -129,11 +106,9 @@ func TestCommander_GetAgendaDataFail(t *testing.T) {
 	assert.Equal(t, expected, c.GetAgenda())
 }
 
-func configureWorldMockRepo(m *repo.MockIWorldRepo) {
-	m.
-		EXPECT().
-		GetWeekdayTalentBooksWithLocation(gomock.Any()).
-		DoAndReturn(func(w string) ([]model.TalentBook, error) {
+func getRepoMock() repo.Mock {
+	return repo.Mock{
+		GetWeekdayTalentBooksWithLocationFunc: func(w string) ([]model.TalentBook, error) {
 			if w == "sunday" {
 				return []model.TalentBook{}, nil
 			}
@@ -148,12 +123,9 @@ func configureWorldMockRepo(m *repo.MockIWorldRepo) {
 					Location: "Ли Юэ",
 				},
 			}, nil
-		}).MaxTimes(1).MinTimes(0)
 
-	m.
-		EXPECT().
-		GetWeekdayWeaponMaterialsWithLocation(gomock.Any()).
-		DoAndReturn(func(w string) ([]model.WeaponMaterial, error) {
+		},
+		GetWeekdayWeaponMaterialsWithLocationFunc: func(w string) ([]model.WeaponMaterial, error) {
 			if w == "sunday" {
 				return []model.WeaponMaterial{}, nil
 			}
@@ -169,12 +141,8 @@ func configureWorldMockRepo(m *repo.MockIWorldRepo) {
 					Location: "Ли Юэ",
 				},
 			}, nil
-		}).MaxTimes(1).MinTimes(0)
-
-	m.
-		EXPECT().
-		GetRegions().
-		DoAndReturn(func() ([]model.Region, error) {
+		},
+		GetRegionsFunc: func() ([]model.Region, error) {
 			return []model.Region{
 				{
 					Name:  "mondstadt",
@@ -185,5 +153,6 @@ func configureWorldMockRepo(m *repo.MockIWorldRepo) {
 					Title: "Ли Юэ",
 				},
 			}, nil
-		}).MaxTimes(1).MinTimes(1)
+		},
+	}
 }

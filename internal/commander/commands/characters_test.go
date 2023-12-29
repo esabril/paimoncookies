@@ -6,12 +6,14 @@ import (
 	"github.com/esabril/paimoncookies/internal/service/characters"
 	cModel "github.com/esabril/paimoncookies/internal/service/characters/model"
 	wModel "github.com/esabril/paimoncookies/internal/service/world/model"
-	characters_repo "github.com/esabril/paimoncookies/test/characters/repository"
-	world_repo "github.com/esabril/paimoncookies/test/world/repository"
-	"github.com/esabril/paimoncookies/tools/renderer"
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
+
+	characters_repo "github.com/esabril/paimoncookies/internal/service/characters/repository"
+	world_repo "github.com/esabril/paimoncookies/internal/service/world/repository"
+
 	"testing"
+
+	"github.com/esabril/paimoncookies/tools/renderer"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCommander_isCharacter(t *testing.T) {
@@ -124,7 +126,7 @@ func TestCommander_GetCharacterMenuRulesSuccessful(t *testing.T) {
 
 *Пара правил:*
 - имя персонажа нужно вводить таким же, какое оно указано в игре. Я не знаю «Чичу», а вот про милашку Ци Ци расскажу с удовольствием;
-- для наших друзей из Инадзумы ты можешь просто ввести его имя. Аратаки Итто, думаю, не обидится, если мы буем искать его просто как «Итто».
+- для наших друзей из Инадзумы ты можешь просто ввести его имя. Аратаки Итто, думаю, не обидится, если мы будем искать его просто как «Итто».
 
 Итак, о ком ты хочешь узнать?`,
 		},
@@ -134,7 +136,7 @@ func TestCommander_GetCharacterMenuRulesSuccessful(t *testing.T) {
 
 *Пара правил:*
 - имя персонажа нужно вводить таким же, какое оно указано в игре. Я не знаю «Чичу», а вот про милашку Ци Ци расскажу с удовольствием;
-- для наших друзей из Инадзумы ты можешь просто ввести его имя. Аратаки Итто, думаю, не обидится, если мы буем искать его просто как «Итто».
+- для наших друзей из Инадзумы ты можешь просто ввести его имя. Аратаки Итто, думаю, не обидится, если мы будем искать его просто как «Итто».
 
 Итак, о ком ты хочешь узнать?`,
 		},
@@ -160,15 +162,69 @@ func TestCommander_GetCharacterMenuRulesFail(t *testing.T) {
 }
 
 func TestCommander_GetCharacterInfo(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	w := world_repo.Mock{
+		GetTalentBookByTypeFunc: func(bookType string) (wModel.TalentBook, error) {
+			return wModel.TalentBook{
+				Title: "О Поэзии",
+			}, nil
+		},
+		GetTalentBookWeekdaysFunc: func(bookType string) ([]string, error) {
+			return []string{
+				"wednesday",
+				"saturday",
+			}, nil
+		},
+		GetAscensionMaterialsByNamesFunc: func(names []string) ([]wModel.AscensionMaterial, error) {
+			return []wModel.AscensionMaterial{
+				{
+					Title: "Сесилия",
+					Type:  "local_speciality",
+				},
+				{
+					Title: "Слаймы",
+					Type:  "common",
+				},
+			}, nil
+		},
+		GetGemByNameFunc: func(name string) (wModel.Gem, error) {
+			return wModel.Gem{
+				Name:  "vayuda_turquoise",
+				Title: "Бирюза Вайюда",
+			}, nil
+		},
+		GetGemDropInfoByNameFunc: func(name string) ([]wModel.BossDrop, error) {
+			return []wModel.BossDrop{
+				{
+					Boss: "Анемо гипостазис",
+					Type: "world",
+				},
+				{
+					Boss: "Двалин",
+					Type: "weekly",
+				},
+			}, nil
+		},
+		GetWorldBossDropByNameFunc: func(name string) (wModel.BossDrop, error) {
+			return wModel.BossDrop{
+				Title:    "Семя урагана",
+				Boss:     "Анемо гипостазис",
+				Location: "Мондштадт",
+				Type:     "world",
+			}, nil
+		},
+		GetWeeklyBossDropByNameFunc: func(name string) (wModel.BossDrop, error) {
+			return wModel.BossDrop{
+				Title:    "Хвост Борея",
+				Boss:     "Андриус",
+				Location: "Мондштадт",
+				Domain:   "Испытание Волка Севера",
+				Type:     "weekly",
+			}, nil
+		},
+	}
 
-	w := world_repo.NewMockIWorldRepo(ctrl)
-	c := characters_repo.NewMockICharactersRepo(ctrl)
-
-	c.EXPECT().
-		GetCharacterByName("Венти").
-		DoAndReturn(func(name string) (cModel.Character, error) {
+	c := characters_repo.Mock{
+		GetCharacterByNameFunc: func(name string) (cModel.Character, error) {
 			return cModel.Character{
 				Title:                    "Венти",
 				Region:                   "Мондштадт",
@@ -181,86 +237,8 @@ func TestCommander_GetCharacterInfo(t *testing.T) {
 				AscensionLocalSpeciality: "cecilia",
 				CommonAscensionMaterial:  "slime",
 			}, nil
-		}).MaxTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetTalentBookByType("ballad").
-		DoAndReturn(func(bookType string) (wModel.TalentBook, error) {
-			return wModel.TalentBook{
-				Title: "О Поэзии",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetTalentBookWeekdays("ballad").
-		DoAndReturn(func(bookType string) ([]string, error) {
-			return []string{
-				"wednesday",
-				"saturday",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetAscensionMaterialsByNames(gomock.Any()).
-		DoAndReturn(func(names []string) ([]wModel.AscensionMaterial, error) {
-			return []wModel.AscensionMaterial{
-				{
-					Title: "Сесилия",
-					Type:  "local_speciality",
-				},
-				{
-					Title: "Слаймы",
-					Type:  "common",
-				},
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetGemByName("vayuda_turquoise").
-		DoAndReturn(func(name string) (wModel.Gem, error) {
-			return wModel.Gem{
-				Name:  "vayuda_turquoise",
-				Title: "Бирюза Вайюда",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetGemDropInfoByName("vayuda_turquoise").
-		DoAndReturn(func(name string) ([]wModel.BossDrop, error) {
-			return []wModel.BossDrop{
-				{
-					Boss: "Анемо гипостазис",
-					Type: "world",
-				},
-				{
-					Boss: "Двалин",
-					Type: "weekly",
-				},
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetWorldBossDropByName("hurricane_seed").
-		DoAndReturn(func(name string) (wModel.BossDrop, error) {
-			return wModel.BossDrop{
-				Title:    "Семя урагана",
-				Boss:     "Анемо гипостазис",
-				Location: "Мондштадт",
-				Type:     "world",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetWeeklyBossDropByName("tail_of_boreas").
-		DoAndReturn(func(name string) (wModel.BossDrop, error) {
-			return wModel.BossDrop{
-				Title:    "Хвост Борея",
-				Boss:     "Андриус",
-				Location: "Мондштадт",
-				Domain:   "Испытание Волка Севера",
-				Type:     "weekly",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
+		},
+	}
 
 	cmdr := Commander{
 		service: &service.Service{

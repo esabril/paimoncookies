@@ -9,8 +9,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// IWorldRepo common repo interface
-type IWorldRepo interface {
+// RepositoryInterface common repo interface
+type RepositoryInterface interface {
 	GetWeekdayTalentBooksWithLocation(weekday string) ([]model.TalentBook, error)
 	GetWeekdayWeaponMaterialsWithLocation(weekday string) ([]model.WeaponMaterial, error)
 	GetRegions() ([]model.Region, error)
@@ -30,7 +30,7 @@ type repo struct {
 }
 
 // New initialize new repository
-func New(db *sqlx.DB) IWorldRepo {
+func New(db *sqlx.DB) RepositoryInterface {
 	return &repo{
 		db: db,
 	}
@@ -38,7 +38,6 @@ func New(db *sqlx.DB) IWorldRepo {
 
 // GetWeekdayTalentBooksWithLocation returns list of today's talent books in dungeons
 func (r *repo) GetWeekdayTalentBooksWithLocation(weekday string) ([]model.TalentBook, error) {
-	// books := make(map[string][]string)
 	books := make([]model.TalentBook, 0)
 	args := map[string]interface{}{
 		"weekday": weekday,

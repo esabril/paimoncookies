@@ -2,25 +2,76 @@ package archive
 
 import (
 	"errors"
+
 	cModel "github.com/esabril/paimoncookies/internal/service/characters/model"
+	characters_repo "github.com/esabril/paimoncookies/internal/service/characters/repository"
 	wModel "github.com/esabril/paimoncookies/internal/service/world/model"
-	characters_repo "github.com/esabril/paimoncookies/test/characters/repository"
-	world_repo "github.com/esabril/paimoncookies/test/world/repository"
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
+	world_repo "github.com/esabril/paimoncookies/internal/service/world/repository"
+
+	// characters_repo "github.com/esabril/paimoncookies/test/characters/repository"
+	// world_repo "github.com/esabril/paimoncookies/test/world/repository"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestArchive_GetCharacterInfoSuccessful(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	w := world_repo.Mock{
+		GetTalentBookByTypeFunc: func(bookType string) (wModel.TalentBook, error) {
+			return wModel.TalentBook{
+				Title: "О Поэзии",
+			}, nil
+		},
+		GetTalentBookWeekdaysFunc: func(bookType string) ([]string, error) {
+			return []string{
+				"wednesday",
+				"saturday",
+			}, nil
+		},
+		GetAscensionMaterialsByNamesFunc: func(names []string) ([]wModel.AscensionMaterial, error) {
+			return []wModel.AscensionMaterial{
+				{
+					Title: "Лилия Калла",
+					Type:  "local_speciality",
+				},
+				{
+					Title: "Печати похитителей сокровищ",
+					Type:  "common",
+				},
+			}, nil
+		},
+		GetGemByNameFunc: func(name string) (wModel.Gem, error) {
+			return wModel.Gem{
+				Name:  "shivada_jade",
+				Title: "Нефрит Шивада",
+			}, nil
+		},
+		GetGemDropInfoByNameFunc: func(name string) ([]wModel.BossDrop, error) {
+			return []wModel.BossDrop{
+				{
+					Boss: "Крио папоротник",
+					Type: "world",
+				},
+				{
+					Boss: "Андриус",
+					Type: "weekly",
+				},
+			}, nil
+		},
+		GetWorldBossDropByNameFunc: func(name string) (wModel.BossDrop, error) {
+			return wModel.BossDrop{
+				Boss: "Крио папоротник",
+			}, nil
+		},
+		GetWeeklyBossDropByNameFunc: func(name string) (wModel.BossDrop, error) {
+			return wModel.BossDrop{
+				Boss: "Андриус",
+			}, nil
+		},
+	}
 
-	w := world_repo.NewMockIWorldRepo(ctrl)
-	c := characters_repo.NewMockICharactersRepo(ctrl)
-
-	c.EXPECT().
-		GetCharacterByName("Кэйа").
-		DoAndReturn(func(name string) (cModel.Character, error) {
+	c := characters_repo.Mock{
+		GetCharacterByNameFunc: func(name string) (cModel.Character, error) {
 			return cModel.Character{
 				Title:                    "Кэйа",
 				Region:                   "Мондштадт",
@@ -33,79 +84,8 @@ func TestArchive_GetCharacterInfoSuccessful(t *testing.T) {
 				AscensionLocalSpeciality: "calla_lily",
 				CommonAscensionMaterial:  "treasure_hoarder_insignias",
 			}, nil
-		}).MaxTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetTalentBookByType("ballad").
-		DoAndReturn(func(bookType string) (wModel.TalentBook, error) {
-			return wModel.TalentBook{
-				Title: "О Поэзии",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetTalentBookWeekdays("ballad").
-		DoAndReturn(func(bookType string) ([]string, error) {
-			return []string{
-				"wednesday",
-				"saturday",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetAscensionMaterialsByNames(gomock.Any()).
-		DoAndReturn(func(names []string) ([]wModel.AscensionMaterial, error) {
-			return []wModel.AscensionMaterial{
-				{
-					Title: "Лилия Калла",
-					Type:  "local_speciality",
-				},
-				{
-					Title: "Печати похитителей сокровищ",
-					Type:  "common",
-				},
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetGemByName("shivada_jade").
-		DoAndReturn(func(name string) (wModel.Gem, error) {
-			return wModel.Gem{
-				Name:  "shivada_jade",
-				Title: "Нефрит Шивада",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetGemDropInfoByName("shivada_jade").
-		DoAndReturn(func(name string) ([]wModel.BossDrop, error) {
-			return []wModel.BossDrop{
-				{
-					Boss: "Крио папоротник",
-					Type: "world",
-				},
-				{
-					Boss: "Андриус",
-					Type: "weekly",
-				},
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetWorldBossDropByName("hoarfrost_core").
-		DoAndReturn(func(name string) (wModel.BossDrop, error) {
-			return wModel.BossDrop{
-				Boss: "Крио папоротник",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetWeeklyBossDropByName("spirit_locker_of_boreas").
-		DoAndReturn(func(name string) (wModel.BossDrop, error) {
-			return wModel.BossDrop{
-				Boss: "Андриус",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
+		},
+	}
 
 	expectedCharacter := cModel.Character{
 		Title:                    "Кэйа",
@@ -177,15 +157,8 @@ func TestArchive_GetCharacterInfoSuccessful(t *testing.T) {
 }
 
 func TestArchive_GetCharacterInfoWorldFail(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	w := world_repo.NewMockIWorldRepo(ctrl)
-	c := characters_repo.NewMockICharactersRepo(ctrl)
-
-	c.EXPECT().
-		GetCharacterByName("Кэйа").
-		DoAndReturn(func(name string) (cModel.Character, error) {
+	c := characters_repo.Mock{
+		GetCharacterByNameFunc: func(name string) (cModel.Character, error) {
 			return cModel.Character{
 				Title:                    "Кэйа",
 				TalentBookType:           "ballad",
@@ -195,77 +168,14 @@ func TestArchive_GetCharacterInfoWorldFail(t *testing.T) {
 				AscensionLocalSpeciality: "calla_lily",
 				CommonAscensionMaterial:  "treasure_hoarder_insignias",
 			}, nil
-		}).MaxTimes(1).MaxTimes(1)
+		},
+	}
 
-	w.EXPECT().
-		GetTalentBookByType("ballad").
-		DoAndReturn(func(bookType string) (wModel.TalentBook, error) {
-			return wModel.TalentBook{}, errors.New("something wrong with database")
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetTalentBookWeekdays("ballad").
-		DoAndReturn(func(bookType string) ([]string, error) {
-			return []string{
-				"wednesday",
-				"saturday",
-			}, nil
-		}).MinTimes(0).MaxTimes(0)
-
-	w.EXPECT().
-		GetAscensionMaterialsByNames(gomock.Any()).
-		DoAndReturn(func(names []string) ([]wModel.AscensionMaterial, error) {
-			return []wModel.AscensionMaterial{
-				{
-					Title: "Лилия Калла",
-					Type:  "local_speciality",
-				},
-				{
-					Title: "Печати похитителей сокровищ",
-					Type:  "common",
-				},
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetGemByName("shivada_jade").
-		DoAndReturn(func(name string) (wModel.Gem, error) {
-			return wModel.Gem{
-				Name:  "shivada_jade",
-				Title: "Нефрит Шивада",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetGemDropInfoByName("shivada_jade").
-		DoAndReturn(func(name string) ([]wModel.BossDrop, error) {
-			return []wModel.BossDrop{
-				{
-					Boss: "Крио папоротник",
-					Type: "world",
-				},
-				{
-					Boss: "Андриус",
-					Type: "weekly",
-				},
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetWorldBossDropByName("hoarfrost_core").
-		DoAndReturn(func(name string) (wModel.BossDrop, error) {
-			return wModel.BossDrop{
-				Boss: "Крио папоротник",
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetWeeklyBossDropByName("spirit_locker_of_boreas").
-		DoAndReturn(func(name string) (wModel.BossDrop, error) {
-			return wModel.BossDrop{
-				Boss: "Андриус",
-			}, nil
-		}).MinTimes(0).MaxTimes(0)
+	w := world_repo.Mock{
+		GetAscensionMaterialsByNamesFunc: func(names []string) ([]wModel.AscensionMaterial, error) {
+			return nil, errors.New("something wrong with database")
+		},
+	}
 
 	a := NewMock(w, c)
 
@@ -276,87 +186,17 @@ func TestArchive_GetCharacterInfoWorldFail(t *testing.T) {
 }
 
 func TestArchive_GetCharacterInfoCharactersFail(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	w := world_repo.NewMockIWorldRepo(ctrl)
-	c := characters_repo.NewMockICharactersRepo(ctrl)
-
-	c.EXPECT().
-		GetCharacterByName("Кэйа").
-		DoAndReturn(func(name string) (cModel.Character, error) {
+	c := characters_repo.Mock{
+		GetCharacterByNameFunc: func(name string) (cModel.Character, error) {
 			return cModel.Character{}, errors.New("something wrong with database")
-		}).MaxTimes(1).MaxTimes(1)
+		},
+	}
 
-	w.EXPECT().
-		GetTalentBookByType("ballad").
-		DoAndReturn(func(bookType string) (wModel.TalentBook, error) {
+	w := world_repo.Mock{
+		GetTalentBookByTypeFunc: func(bookType string) (wModel.TalentBook, error) {
 			return wModel.TalentBook{}, errors.New("something wrong with database")
-		}).MinTimes(0).MaxTimes(0)
-
-	w.EXPECT().
-		GetTalentBookWeekdays("ballad").
-		DoAndReturn(func(bookType string) ([]string, error) {
-			return []string{
-				"wednesday",
-				"saturday",
-			}, nil
-		}).MinTimes(0).MaxTimes(0)
-
-	w.EXPECT().
-		GetAscensionMaterialsByNames(gomock.Any()).
-		DoAndReturn(func(names []string) ([]wModel.AscensionMaterial, error) {
-			return []wModel.AscensionMaterial{
-				{
-					Title: "Лилия Калла",
-					Type:  "local_speciality",
-				},
-				{
-					Title: "Печати похитителей сокровищ",
-					Type:  "common",
-				},
-			}, nil
-		}).MinTimes(0).MaxTimes(0)
-
-	w.EXPECT().
-		GetGemByName("shivada_jade").
-		DoAndReturn(func(name string) (wModel.Gem, error) {
-			return wModel.Gem{
-				Name:  "shivada_jade",
-				Title: "Нефрит Шивада",
-			}, nil
-		}).MinTimes(0).MaxTimes(0)
-
-	w.EXPECT().
-		GetGemDropInfoByName("shivada_jade").
-		DoAndReturn(func(name string) ([]wModel.BossDrop, error) {
-			return []wModel.BossDrop{
-				{
-					Boss: "Крио папоротник",
-					Type: "world",
-				},
-				{
-					Boss: "Андриус",
-					Type: "weekly",
-				},
-			}, nil
-		}).MinTimes(1).MaxTimes(1)
-
-	w.EXPECT().
-		GetWorldBossDropByName("hoarfrost_core").
-		DoAndReturn(func(name string) (wModel.BossDrop, error) {
-			return wModel.BossDrop{
-				Boss: "Крио папоротник",
-			}, nil
-		}).MinTimes(0).MaxTimes(0)
-
-	w.EXPECT().
-		GetWeeklyBossDropByName("spirit_locker_of_boreas").
-		DoAndReturn(func(name string) (wModel.BossDrop, error) {
-			return wModel.BossDrop{
-				Boss: "Андриус",
-			}, nil
-		}).MinTimes(0).MaxTimes(0)
+		},
+	}
 
 	a := NewMock(w, c)
 

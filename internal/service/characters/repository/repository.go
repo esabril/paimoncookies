@@ -3,11 +3,12 @@ package repository
 import (
 	"errors"
 	"fmt"
+
 	"github.com/esabril/paimoncookies/internal/service/characters/model"
 	"github.com/jmoiron/sqlx"
 )
 
-type ICharactersRepo interface {
+type RepositoryInterface interface {
 	GetCharactersList() ([]model.Character, error)
 	GetCharacterByName(name string) (model.Character, error)
 }
@@ -21,7 +22,7 @@ var NonTeyvatWorldChracters = map[string]bool{
 	"Элой": true,
 }
 
-func New(db *sqlx.DB) ICharactersRepo {
+func New(db *sqlx.DB) RepositoryInterface {
 	return &repo{
 		db: db,
 	}

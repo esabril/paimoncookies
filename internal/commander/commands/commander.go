@@ -29,10 +29,8 @@ func (c *Commander) HandleCommand(msg *tgbotapi.MessageConfig, command string) {
 	switch command {
 	case CommandStart:
 		msg.Text = c.GetStart()
-		break
 	case CommandAgenda:
 		msg.Text = c.GetAgenda()
-		break
 	default:
 		msg.Text = "Паймон перестает тебя понимать. Пойдем лучше поедим?"
 	}
@@ -73,22 +71,17 @@ func (c *Commander) HandleMessage(msg *tgbotapi.MessageConfig, text string) {
 	case keyboard.ReplyKeyboardTextToMainMenu:
 		msg.Text = "🌸 О чем Паймон может тебе рассказать?"
 		msg.ReplyMarkup = c.KeyboardManager.GetMainMenu()
-		break
 	case keyboard.ReplyKeyboardTextToAllElements:
 		msg.Text = "🌸 Давай поищем кого-нибудь еще..."
 		msg.ReplyMarkup = c.KeyboardManager.ForElements()
-		break
 	case keyboard.ReplyKeyboardTextAgenda:
 		msg.Text = c.GetAgenda()
-		break
 	case keyboard.ReplyKeyboardTextCharacters:
 		msg.Text = c.GetCharacterMenuRules("")
 		msg.ReplyMarkup = c.KeyboardManager.ForElements()
-		break
 	default:
 		msg.Text = "Это очень интересная мыс... О, смотри, бабочка!" // todo: random Paimon phrases
 		msg.ReplyMarkup = c.KeyboardManager.GetMainMenu()
-		break
 	}
 }
 

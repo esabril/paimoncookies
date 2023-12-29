@@ -30,18 +30,12 @@ run-app:
 run-app-silent:
 	PCOOKIES_BOT_TOKEN=$(BOT_TOKEN) docker-compose -f $(DOCKER_COMPOSE_FILE) up -d app
 
-.PHONY: mock-generate
-mock-generate:
-	go install github.com/golang/mock/mockgen@v1.6.0 && \
-	$(GO_BIN)/mockgen -source=internal/service/world/repository/repository.go -destination=test/world/repository/repository.go -package=world_repo && \
-	$(GO_BIN)/mockgen -source=internal/service/characters/repository/repository.go -destination=test/characters/repository/repository.go -package=characters_repo
-
 .PHONY: run-local-tests
-run-local-tests: mock-generate
+run-local-tests: 
 	go test ./... -v
 
 .PHONY: run-app-tests
-run-app-tests: mock-generate
+run-app-tests: 
 	docker-compose -f $(DOCKER_COMPOSE_FILE) exec -it app sh && go test ./... -v
 
 .PHONY: run-test-coverage
