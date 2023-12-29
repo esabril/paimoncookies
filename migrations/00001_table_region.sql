@@ -9,11 +9,5 @@ CREATE INDEX idx_name ON region (
     name
 );
 
-INSERT INTO region (name, title) VALUES
-    ('mondstadt', 'Мондштадт'),
-    ('liyue', 'Ли Юэ'),
-    ('inazuma', 'Инадзума')
-;
-
 -- +goose Down
 DROP TABLE region;

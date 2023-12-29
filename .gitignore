@@ -2,3 +2,4 @@
 vendor/
 .env
 test/cover.out
+.vscode/

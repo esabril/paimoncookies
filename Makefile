@@ -2,7 +2,7 @@ DOCKER_COMPOSE_FILE=docker-compose.yml
 
 DB_DRIVER=postgres
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=5433
 DB_USER=paimon
 DB_PASS=paimon
 DB_NAME=paimoncookies
@@ -26,43 +26,9 @@ run-database:
 run-app:
 	PCOOKIES_BOT_TOKEN=$(BOT_TOKEN) docker-compose -f $(DOCKER_COMPOSE_FILE) up
 
-.PHONY: run-database
+.PHONY: run-app-silent
 run-app-silent:
 	PCOOKIES_BOT_TOKEN=$(BOT_TOKEN) docker-compose -f $(DOCKER_COMPOSE_FILE) up -d app
-
-.PHONY: all-migrations
-all-migrations:
-	 go install github.com/pressly/goose/v3/cmd/goose@latest && \
- 		cd migrations/ && \
- 		 $(GO_BIN)/goose $(DB_DRIVER) $(DB_DRIVER)://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL) up
-
-# make migration-create name=new_table_name type=sql
-.PHONY: migration-create
-migration-create:
-	cd migrations/ && \
- 		 $(GO_BIN)/goose $(DB_DRIVER) $(DB_DRIVER)://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL) create $(name) $(type)
-
-.PHONY: migration-up
-migration-up:
-	cd migrations/ && \
- 		 $(GO_BIN)/goose $(DB_DRIVER) $(DB_DRIVER)://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL) up
-
-# make migration-up-to v=13
-.PHONY: migration-up-to
-migration-up-to:
-	cd migrations/ && \
- 		 $(GO_BIN)/goose $(DB_DRIVER) $(DB_DRIVER)://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL) up-to $(v)
-
-.PHONY: migration-status
-migration-status:
-	cd migrations/ && \
- 		 $(GO_BIN)/goose $(DB_DRIVER) $(DB_DRIVER)://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL) status
-
-# make migration-down-to v=4
-.PHONY: migration-down-to
-migration-down-to:
-	cd migrations/ && \
- 		 $(GO_BIN)/goose $(DB_DRIVER) $(DB_DRIVER)://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL) down-to $(v)
 
 .PHONY: mock-generate
 mock-generate:
@@ -102,3 +68,5 @@ dockerize:
 .PHONY: go-export
 go-export:
 	export PATH=$PATH:/usr/local/go/bin && go version
+
+include bin/make/migrations.makefile.mk
