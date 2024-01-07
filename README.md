@@ -1,7 +1,7 @@
 # Телеграм-бот «Печеньки для Паймон»
 ![Coverage](https://img.shields.io/badge/Coverage-58.3%25-yellow)
 
-#### Version 0.2.4
+#### Version 0.2.5
 
 ## Run
 Run project dev environment and all required migrations
