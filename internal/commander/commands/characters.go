@@ -10,7 +10,7 @@ func (c *Commander) GetCharacterMenuRules(element string) string {
 	showExtendedRules := false
 
 	if element != "" {
-		element = fmt.Sprintf("%s", c.renderer.AddEmojiToElement(element))
+		element = c.renderer.AddEmojiToElement(element)
 	} else {
 		showExtendedRules = true
 	}

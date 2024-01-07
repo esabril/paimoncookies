@@ -30,10 +30,8 @@ func (c *Commander) isGem(reply string) (model.Gem, bool) {
 	switch len(parts) {
 	case 1, 2:
 		gemName = reply
-		break
 	case 3:
 		gemName = strings.Join(parts[1:3], " ")
-		break
 	default:
 		return model.Gem{}, false
 	}

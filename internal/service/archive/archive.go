@@ -10,18 +10,18 @@ import (
 
 // Archive service handle common information about all data in the game
 type Archive struct {
-	world      *world.World
-	characters *characters.Characters
+	world      world.WorldInterface
+	characters characters.CharacterInterface
 }
 
-func NewArchive(w *world.World, c *characters.Characters) *Archive {
+func NewArchive(w world.WorldInterface, c characters.CharacterInterface) *Archive {
 	return &Archive{
 		world:      w,
 		characters: c,
 	}
 }
 
-func NewMock(wrepo wRepo.IWorldRepo, crepo cRepo.ICharactersRepo) *Archive {
+func NewMock(wrepo wRepo.RepositoryInterface, crepo cRepo.RepositoryInterface) *Archive {
 	return &Archive{
 		world:      world.NewMock(wrepo),
 		characters: characters.NewMock(crepo, nil, nil),

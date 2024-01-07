@@ -1,14 +1,25 @@
 package characters
 
 import (
+	"log"
+
 	"github.com/esabril/paimoncookies/internal/service/characters/model"
 	"github.com/esabril/paimoncookies/internal/service/characters/repository"
 	"github.com/jmoiron/sqlx"
-	"log"
 )
 
+type CharacterInterface interface {
+	CheckCharacter(name string) bool
+	CheckElement(element string) bool
+	GetCharacterByName(name string) (model.Character, error)
+	GetElementCharacters(element string, first int, last int) []string
+	GetElements() map[string][]string
+	GetInitialCharactersList() (elements map[string][]string, characters map[string]bool, err error)
+	SimplifyCharacterName(name string) (string, bool)
+}
+
 type Characters struct {
-	repo       repository.ICharactersRepo
+	repo       repository.RepositoryInterface
 	elements   map[string][]string
 	characters map[string]bool
 }
@@ -41,7 +52,7 @@ func NewService(db *sqlx.DB) *Characters {
 	return s
 }
 
-func NewMock(repo repository.ICharactersRepo, elements map[string][]string, characters map[string]bool) *Characters {
+func NewMock(repo repository.RepositoryInterface, elements map[string][]string, characters map[string]bool) *Characters {
 	return &Characters{
 		repo:       repo,
 		elements:   elements,
