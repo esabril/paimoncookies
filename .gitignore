@@ -3,3 +3,4 @@ vendor/
 .env
 test/cover.out
 .vscode/
+coverage.out
