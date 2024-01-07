@@ -1,4 +1,5 @@
 # Телеграм-бот «Печеньки для Паймон»
+![Coverage](https://img.shields.io/badge/Coverage-58.3%25-yellow)
 
 #### Version 0.2.4
 
